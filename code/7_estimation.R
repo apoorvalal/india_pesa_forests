@@ -10,7 +10,7 @@ set.seed(42)
 # %% ####################################################
 root = "../"
 data = glue("{root}inp")
-out  = "../out/"
+out  = glue("{root}out/")
 
 # %% export utils
 ch.row <- function(name, yesno, format = 'latex') {
@@ -22,56 +22,6 @@ ch.row <- function(name, yesno, format = 'latex') {
 }
 
 
-########  ########  ######## ########
-##     ## ##     ## ##       ##     ##
-##     ## ##     ## ##       ##     ##
-########  ########  ######   ########
-##        ##   ##   ##       ##
-##        ##    ##  ##       ##
-##        ##     ## ######## ##
-#  run once , write out to binary for analysis
-
-# %% read in data
-tic()
-df = import(file.path(data, 'villages_estimation_sample.rds')) %>% setDT
-toc()
-df %>% glimpse
-
-# %%
-
-# %% identifiers
-df[, dist := as.factor(district)][,
-     block := as.factor(nameb)][,
-     sub_dist2 := as.factor(sub_dist)][,
-     state := as.factor(state_ut)][,
-     village := as.factor(code_2011)]
-# state X year FE
-df[, styear := .GRP, by =  .(state, year)]
-
-# %% outcome and time variables prep
-df[, def_ha := def * 0.09][,
-  D         := sch * pesa_exposure][,
-  t         := year - 2000][,
-  t2        := t^2]
-
-# %% demographic vars
-df[, tot_non_sc_st := tot_pop - (tot_sc + tot_st)][,
-     st_share      := tot_st/tot_pop][,
-     st_plurality  := fifelse(tot_st > max(tot_sc, tot_non_sc_st), 1, 0)][,
-     D_X_st_plurality := D * st_plurality]
-
-# %% pre-period forest cover deciles and main analysis cutoff
-df[, pref_bin := ntile(pref_mean, 10)]
-# cutoff for 2%
-df[, pref := fifelse(pref_mean >= 2, 1, 0)]
-
-
-df$yr = as.factor(df$year)
-# write out intermediate file
-saveRDS(df, file.path(root, 'tmp/est_clean2.rds'))
-
-# %%
-
 ########  ########  ######    ######
 ##     ## ##       ##    ##  ##    ##
 ##     ## ##       ##        ##
@@ -82,11 +32,12 @@ saveRDS(df, file.path(root, 'tmp/est_clean2.rds'))
 
 # %%
 tic()
-df = import(file.path(root, 'tmp/est_clean2.rds')) %>% setDT
+df = import(file.path(root, 'tmp/villages_estimation_sample.rds')) %>% setDT
 toc()
 
 # %% main regressions
 df2 = df[pref == 1]
+df3 = df2[state == "Chhattisgarh" | state == "Jharkhand" | state == "Maharashtra" | state == "Odisha"]
 
 # %% 2wFE
 tic()
@@ -97,21 +48,32 @@ tic()
 m01 = felm(def_ha ~ D | village + yr + village:t | 0 | village, df2)
 toc()
 # %% Villge + state X year FEs
+# tic()
+# m02 = felm(def_ha ~ D | village + state*yr | 0 | village, df2)
+# toc()
+# # %%
+# tic()
+# m03 = felm(def_ha ~ D | village + village:t + styear | 0 | village, df2)
+# toc()
+# %% with effective sample for cols 3, 4
 tic()
-m02 = felm(def_ha ~ D | village + state*yr | 0 | village, df2)
+m002 = felm(def_ha ~ D | village + state*yr | 0 | village, df3)
 toc()
 # %%
 tic()
-m03 = felm(def_ha ~ D | village + village:t + styear | 0 | village, df2)
+m003 = felm(def_ha ~ D | village + village:t + styear | 0 | village, df3)
 toc()
-
 # %%
 dvmean = round(mean(df2$def_ha), 2)
 nvill  = nunique(df2$code_2011)
+# for state-year FE specification
+dvmean2 = round(mean(df3$def_ha), 2)
+nvill2  = nunique(df3$code_2011)
 # %% export
-mods = list(m00, m01, m02, m03)
-
+mods = list(m00, m01, m002, m003)
 # table 1
+stargazer(mods)
+
 stargazer(mods, keep.stat = c("N"),
         covariate.labels = c("Scheduled X PESA"),
         dep.var.labels = c("Annual Deforestation in Hectares"),
@@ -126,10 +88,94 @@ stargazer(mods, keep.stat = c("N"),
         ch.row('Year FE',         c(T,T,F,F), format = 'latex'),
         ch.row('Village TT',      c(F,T,F,T), format = 'latex'),
         ch.row('State X Year FE', c(F,F,T,T), format = 'latex'),
-        c("Dep. Var. Mean", rep(dvmean, 4)),
-        c("N. Villages", rep(nvill, 4))
+        c("Dep. Var. Mean", rep(dvmean, 2), rep(dvmean2, 2)),
+        c("N. Villages", rep(nvill, 2), rep(nvill2, 2))
         ),
         out = file.path(out, 'fe_estimates_village.tex'))
+
+# %%
+########  ##    ##  ######  ########    ###    ######## ########
+##     ##  ##  ##  ##    ##    ##      ## ##      ##    ##
+##     ##   ####   ##          ##     ##   ##     ##    ##
+########     ##     ######     ##    ##     ##    ##    ######
+##     ##    ##          ##    ##    #########    ##    ##
+##     ##    ##    ##    ##    ##    ##     ##    ##    ##
+########     ##     ######     ##    ##     ##    ##    ########
+
+CH = df3[state == "Chhattisgarh"]
+tic()
+m_CH = felm(def_ha ~ D | village + village:t + styear | 0 | village, CH)
+toc()
+
+# %%
+JH = df3[state == "Jharkhand"]
+tic()
+m_JH = felm(def_ha ~ D | village + village:t + styear | 0 | village, JH)
+toc()
+
+# %%
+MH = df3[state == "Maharashtra"]
+tic()
+m_MH = felm(def_ha ~ D | village + village:t + styear | 0 | village, MH)
+toc()
+# %%
+OR = df3[state == "Odisha"]
+tic()
+m_OR = felm(def_ha ~ D | village + village:t + styear | 0 | village, OR)
+toc()
+
+# %%
+st_mods = list(m_CH, m_JH, m_MH, m_OR)
+# table 1
+dvmean_CH = round(mean(CH$def_ha), 2)
+nvill_CH  = nunique(CH$code_2011)
+dvmean_JH = round(mean(JH$def_ha), 2)
+nvill_JH  = nunique(JH$code_2011)
+dvmean_MH = round(mean(MH$def_ha), 2)
+nvill_MH  = nunique(MH$code_2011)
+dvmean_OR = round(mean(OR$def_ha), 2)
+nvill_OR  = nunique(OR$code_2011)
+
+# %%
+
+stargazer(st_mods, keep.stat = c("N"),
+          covariate.labels = c("Scheduled X PESA"),
+          dep.var.labels = c("Annual Deforestation in Hectares"),
+          column.labels = c("Chhattisgarh", "Jharkhand", "Maharashtra", "Odisha"),
+          title = "Main Effects by State",
+          model.names = F,
+          label = "table:regres_by_state",
+          style = "apsr", type = 'latex',
+          notes = "Cluster-Robust Standard Errors (by village)",
+          add.lines = list(
+        ch.row('Village FE',      c(T,T,T,T), format = 'latex'),
+        ch.row('Village TT',      c(T,T,T,T), format = 'latex'),
+        ch.row('State X Year FE', c(T,T,T,T), format = 'latex'),
+            c("Dep. Var. Mean", dvmean_CH, dvmean_JH, dvmean_MH, dvmean_OR),
+            c("N. Villages",    nvill_CH,  nvill_JH,  nvill_MH, nvill_OR)
+          ), out = file.path(out, 'fe_estimates_village_state.tex'))
+
+
+# stargazer(st_mods, keep.stat = c("N"),
+#           covariate.labels = c("Scheduled X PESA"),
+#           dep.var.labels = c("Annual Deforestation in Hectares"),
+#           style = "apsr", type = 'latex',
+#           column.sep.width = "0pt",
+#           object.names = TRUE,
+#           column.labels = c("Chhattisgarh", "Jharkhand", "Maharashtra", "Odisha"),
+#           title = "Main Effects by State",
+#           model.names = F,
+#           label = "table:regres_by_state",
+#           notes = "Cluster-Robust Standard Errors (by village)",
+#           add.lines = list(
+#             c("Dep. Var. Mean", dvmean_CH, dvmean_JH, dvmean_MH, dvmean_OR),
+#             c("N. Villages",    nvill_CH,  nvill_JH,  nvill_MH, nvill_OR)
+#           ),
+#       out = file.path(out, 'fe_estimates_village_state.tex'))
+#
+
+
+
 
 ########   #######  ########  ##     ##  ######  ########
 ##     ## ##     ## ##     ## ##     ## ##    ##    ##

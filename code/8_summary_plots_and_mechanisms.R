@@ -4,13 +4,16 @@ library(LalRUtils)
 
 load_or_install(c('tidyverse','magrittr', 'lfe','janitor',
                   'data.table', 'knitr', 'stargazer2',
-                  'ggstatsplot', 'interflex', 'tictoc', 'rio', 'binsreg'
+                  'ggstatsplot', 'interflex', 'tictoc', 'rio', 'binsreg',
+                  'patchwork', 'broom'
                   ))
 
+# %%
 ####################################################
 root = "../"
-# root = yen_root
 data = paste0(root, 'inp')
+out  = file.path(root, 'out')
+
 setwd(data)
 theme_set(lal_plot_theme())
 
@@ -32,7 +35,8 @@ ch.row <- function(name, yesno, format = 'latex') {
 ##    ## ##     ## ##     ## ##     ## ##     ## ##    ##     ##
 ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
 # pre-reshape wide data
-widedat = fread(file.path(data, '../villages_points_all2.csv'))
+
+widedat = fread(file.path(data, 'village_points_all_mines.csv'))
 widedat %>% glimpse
 widedat = lower_varnames(widedat) %>% setDT
 keepvars = c(
@@ -54,8 +58,11 @@ cov_labels = c('\\# households', 'Population', 'Scheduled', '2000 Forest Index (
 
 ## ----st1----------------------------------------------------------------------
 # %% table A1, A2
+# stargazer(dat_trimmed, covariate.labels = cov_labels)
+
 stargazer(dat_trimmed, covariate.labels = cov_labels, type = 'latex',
     out = file.path(out, 'vil_sumstats.tex'), float = F)
+
 stargazer(dat_trimmed[pref_mean >= 2], covariate.labels = cov_labels, type = 'latex',
     out = file.path(out, 'vil_sumstats_forested.tex'), float = F)
 
@@ -71,7 +78,7 @@ stargazer(dat_trimmed[pref_mean >= 2], covariate.labels = cov_labels, type = 'la
 ##     ## #### ##    ## #### ##    ##  ######
 
 # %% mining summary figure - binned scatterplot - fig8 panel A ;
-dat = import(file.path(data, 'villages_estimation_sample.rds'))
+dat = import(file.path('../tmp/villages_estimation_sample.rds'))
 late_states = dat[state_ut %in% c("Chhattisgarh", "Maharashtra", "Jharkhand") & year == 2001]
 
 # %%
@@ -89,22 +96,25 @@ gen = binsreg(y = figsamp$def_ha, x = figsamp$min_dist_to_mine,
 f = gen$bins_plot + lal_plot_theme() +
   labs(y = 'deforestated area in 2001 (residualised)', x = 'Distance')
 
+# %%
 ggsave(file.path(out, 'deforestation_v_mines.pdf'), f, device = cairo_pdf)
 
 # %% estimate het-TE by distance to mines - table 2
 
 # %%
 tic()
-estim_samp = import("../est_clean2.rds") %>% setDT
+estim_samp = import("../tmp/villages_estimation_sample.rds") %>% setDT
 toc()
 #%%
 estim_samp2 = estim_samp[pref == 1]
-estim_samp2[, mine_dist_q := ntile(min_dist_to_mine, 3)]
+# estim_samp2[, mine_dist_q := ntile(min_dist_to_mine, 3)]
+estim_samp2[, mine_dist_50_b := ifelse(min_dist_to_mine>5, 1, 0)]
 
-estim_samp2[, `:=`(
-  D_mine_1 = D * (mine_dist_q == 1),
-  D_mine_2 = D * (mine_dist_q == 2),
-  D_mine_3 = D * (mine_dist_q == 3))]
+# estim_samp2[, `:=`(
+#   D_mine_1 = D * (mine_dist_q == 1),
+#   D_mine_2 = D * (mine_dist_q == 2),
+#   D_mine_3 = D * (mine_dist_q == 3))]
+
 
 # %% 2wFE
 tic()
@@ -173,7 +183,6 @@ estim_samp[, min_dist_to_border := NULL]
     .[2:length(.)])
 estim_samp[, min_dist_computed := do.call(pmin, c(.SD, list(na.rm = T))),
   .SDcols = min_distances]
-
 # replace with distance in km
 
 estim_samp[, min_dist_computed := min_dist_computed *110]
@@ -191,30 +200,29 @@ mining_all = interflex(Y = "def_ha", D = "D_f", X = "min_dist_computed",
   FE = c("code_2011_f", "year"), # nbins = 10, Xunif = T,
   cutoffs = seq(0, 100, 10),
   xlab = "Distance", ylab = "Treatment Effect",
-  main = "Treatment Effect is strongest in villages close to mines",
   data = estim_samp[min_dist_computed <= 100], theme.bw = T,
   estimator = 'binning', CI = FALSE)
 toc()
 
 mining_all$graph
-
 # %%
 ggsave(file.path(root, "Output/Interflex_main.pdf"), mining_all$graph,
        device = cairo_pdf)
 
 
 
-# %% kernel estimator
-tic()
-mining_kernel = inter.kernel(
-  Y = "def_ha", D = "D_f", X = "min_dist_computed",
-  FE = c("code_2011_f", "year"), CI = F,
-  xlab = "Distance", ylab = "Treatment Effect",
-  data = estim_samp[min_dist_computed <= 100], theme.bw = T)
-toc()
-
-mining_all$graph
-
+# # %% kernel estimator
+# tic()
+# mining_kernel = inter.kernel(
+#   Y = "def_ha", D = "D_f", X = "min_dist_computed",
+#   FE = c("code_2011_f", "year"), CI = F,
+#   xlab = "Distance", ylab = "Treatment Effect",
+#   data = estim_samp[min_dist_computed <= 100], theme.bw = T)
+# toc()
+#
+# mining_all$graph
+#
+# %% intensive margin - mining density
 # %%
 
 ##################################################
@@ -332,3 +340,100 @@ ggsave(file.path(root, 'Output/mining_het_te.pdf'), multi, device = cairo_pdf,
 
 ggsave(file.path(root, 'Output/mining_het_te.png'), multi, height = 25, width = 15)
 # %%
+#### ##    ## ######## ######## ##    ##  ######  #### ##     ## ########
+ ##  ###   ##    ##    ##       ###   ## ##    ##  ##  ##     ## ##
+ ##  ####  ##    ##    ##       ####  ## ##        ##  ##     ## ##
+ ##  ## ## ##    ##    ######   ## ## ##  ######   ##  ##     ## ######
+ ##  ##  ####    ##    ##       ##  ####       ##  ##   ##   ##  ##
+ ##  ##   ###    ##    ##       ##   ### ##    ##  ##    ## ##   ##
+#### ##    ##    ##    ######## ##    ##  ######  ####    ###    ########
+
+tic()
+estim_samp = import("../tmp/villages_estimation_sample2.rds") %>% setDT
+toc()
+
+estim_samp = estim_samp[pref == 1]
+estim_samp %>% glimpse
+
+# %%
+estim_samp[, `:=`(D_f = as.factor(D),
+                  code_2011_f = as.factor(code_2011),
+                  year_f = as.factor(year)) ]
+
+#%% binning estimator - figure 8 panel B
+
+# %%
+m00 = felm(def_ha ~ D_f * mines_in_5k | code_2011_f + year_f | 0 | code_2011_f, estim_samp)
+estim_samp[, mines_count_fac := as.factor(case_when(
+  mines_in_5k %in% c(1,2) ~ "1-2",
+  mines_in_5k %in% c(3,4) ~ "3-4",
+  mines_in_5k > 5 ~ "5+",
+  TRUE ~ "0"))]
+
+m01 = felm(def_ha ~ D_f * mines_count_fac  | code_2011_f + year_f | 0 | code_2011_f, estim_samp)
+
+# %%
+covlabs = c("Treatment",
+  "Treatment $\\times$ Number of within 5 km",
+  "Treatment $\\times$ 1-2 Mines within 5 km",
+  "Treatment $\\times$ 3-4 Mines within 5 km",
+  "Treatment $\\times$ 5+ Mines within 5km"
+  )
+
+stargazer(m00, m01,
+  keep = "(D_f1|D_f1:mines_count_fac.*)",
+        keep.stat = c("N"),
+        covariate.labels = covlabs)
+
+# %%
+
+stargazer(m00, m01,
+  keep = "(D_f1|D_f1:mines_count_fac.*)",
+        keep.stat = c("N"),
+        covariate.labels = covlabs,
+        dep.var.labels = c("Annual Deforestation in Hectares"),
+        style = "apsr",
+        column.sep.width = "0pt",
+        title = "Treatment Effects on Annual Deforestation by mine density within 5 km buffer",
+        model.names = F,
+        label = "table:reg_mine_density",
+        notes = "Cluster-Robust Standard Errors (by village)",
+        type = 'latex', out = file.path(out, 'mining_density_regs.tex'))
+
+# %%
+
+
+# tic()
+# mining_density = interflex(Y = "def_ha", D = "D_f", X = "mines_in_5k",
+#   FE = c("code_2011_f", "year"),
+#   xlab = "Mining Density", ylab = "Treatment Effect",
+#   data = estim_samp, theme.bw = T,
+#   estimator = 'binning', CI = FALSE)
+# toc()
+# mining_density$graph
+# %%
+tic()
+mining_density = interflex(Y = "def_ha", D = "D_f", X = "mines_in_10k",
+  FE = c("code_2011_f", "year"), # nbins = 10, Xunif = T,
+  cutoffs = seq(0, 50, 10),
+  xlab = "Mining Density", ylab = "Treatment Effect",
+  data = estim_samp[mines_in_10k <= 50], theme.bw = T,
+  estimator = 'binning', CI = FALSE)
+toc()
+
+mining_density$graph
+
+# %%
+tic()
+mining_density2 = interflex(Y = "def_ha", D = "D_f", X = "mines_in_50k",
+  FE = c("code_2011_f", "year"), # nbins = 10, Xunif = T,
+  cutoffs = seq(0, 50, 10),
+  xlab = "Mining Density", ylab = "Treatment Effect",
+  data = estim_samp[mines_in_50k <= 50], theme.bw = T,
+  estimator = 'binning', CI = FALSE)
+toc()
+
+# %%
+(mining_density$graph | mining_density2$graph)
+
+# %%ggsave(file.path(root, "out/Interflex_mining_density.pdf"), mining_density$graph)
