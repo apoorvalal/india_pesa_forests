@@ -47,14 +47,6 @@ toc()
 tic()
 m01 = felm(def_ha ~ D | village + yr + village:t | 0 | village, df2)
 toc()
-# %% Villge + state X year FEs
-# tic()
-# m02 = felm(def_ha ~ D | village + state*yr | 0 | village, df2)
-# toc()
-# # %%
-# tic()
-# m03 = felm(def_ha ~ D | village + village:t + styear | 0 | village, df2)
-# toc()
 # %% with effective sample for cols 3, 4
 tic()
 m002 = felm(def_ha ~ D | village + state*yr | 0 | village, df3)
@@ -106,15 +98,7 @@ CH = df3[state == "Chhattisgarh"]
 tic()
 m_CH = felm(def_ha ~ D | village + village:t + styear | 0 | village, CH)
 toc()
-
 # %%
-JH = df3[state == "Jharkhand"]
-tic()
-m_JH = felm(def_ha ~ D | village + village:t + styear | 0 | village, JH)
-toc()
-
-# %%
-MH = df3[state == "Maharashtra"]
 tic()
 m_MH = felm(def_ha ~ D | village + village:t + styear | 0 | village, MH)
 toc()
@@ -123,55 +107,70 @@ OR = df3[state == "Odisha"]
 tic()
 m_OR = felm(def_ha ~ D | village + village:t + styear | 0 | village, OR)
 toc()
-
 # %%
-st_mods = list(m_CH, m_JH, m_MH, m_OR)
-# table 1
-dvmean_CH = round(mean(CH$def_ha), 2)
-nvill_CH  = nunique(CH$code_2011)
+JH = df3[state == "Jharkhand"]
+tic()
+m_JH = felm(def_ha ~ D | village + village:t + styear | 0 | village, JH)
+toc()
+# %%
+NJH = df3[state != "Jharkhand"]
+tic()
+m_NJH = felm(def_ha ~ D | village + village:t + styear | 0 | village, NJH)
+toc()
+# %%
+# st_mods = list(m_CH, m_JH, m_MH, m_OR)
+st_mods = list(m_JH, m_NJH)
+# table by state
 dvmean_JH = round(mean(JH$def_ha), 2)
 nvill_JH  = nunique(JH$code_2011)
+dvmean_NJH = round(mean(NJH$def_ha), 2)
+nvill_NJH  = nunique(NJH$code_2011)
+
+# %%
+dvmean_CH = round(mean(CH$def_ha), 2)
+nvill_CH  = nunique(CH$code_2011)
 dvmean_MH = round(mean(MH$def_ha), 2)
 nvill_MH  = nunique(MH$code_2011)
 dvmean_OR = round(mean(OR$def_ha), 2)
 nvill_OR  = nunique(OR$code_2011)
 
 # %%
-
 stargazer(st_mods, keep.stat = c("N"),
           covariate.labels = c("Scheduled X PESA"),
           dep.var.labels = c("Annual Deforestation in Hectares"),
-          column.labels = c("Chhattisgarh", "Jharkhand", "Maharashtra", "Odisha"),
-          title = "Main Effects by State",
+          column.labels = c("Jharkhand", "CH/MH/OR"),
+          title = "Main Effects in 4 treated states separated by Jharkahnd and Chhattisgarh, Maharashtra, and Odisha",
           model.names = F,
           label = "table:regres_by_state",
           style = "apsr", type = 'latex',
           notes = "Cluster-Robust Standard Errors (by village)",
           add.lines = list(
-        ch.row('Village FE',      c(T,T,T,T), format = 'latex'),
-        ch.row('Village TT',      c(T,T,T,T), format = 'latex'),
-        ch.row('State X Year FE', c(T,T,T,T), format = 'latex'),
-            c("Dep. Var. Mean", dvmean_CH, dvmean_JH, dvmean_MH, dvmean_OR),
-            c("N. Villages",    nvill_CH,  nvill_JH,  nvill_MH, nvill_OR)
+        ch.row('Village FE',      c(T,T), format = 'latex'),
+        ch.row('Village TT',      c(T,T), format = 'latex'),
+        ch.row('State X Year FE', c(T,T), format = 'latex'),
+            c("Dep. Var. Mean", dvmean_JH, dvmean_NJH),
+            c("N. Villages",     nvill_JH,  nvill_NJH)
           ), out = file.path(out, 'fe_estimates_village_state.tex'))
 
-
+# %%
+.082/0.08
+0.063/.21
 # stargazer(st_mods, keep.stat = c("N"),
 #           covariate.labels = c("Scheduled X PESA"),
 #           dep.var.labels = c("Annual Deforestation in Hectares"),
-#           style = "apsr", type = 'latex',
-#           column.sep.width = "0pt",
-#           object.names = TRUE,
 #           column.labels = c("Chhattisgarh", "Jharkhand", "Maharashtra", "Odisha"),
 #           title = "Main Effects by State",
 #           model.names = F,
 #           label = "table:regres_by_state",
+#           style = "apsr", type = 'latex',
 #           notes = "Cluster-Robust Standard Errors (by village)",
 #           add.lines = list(
+#         ch.row('Village FE',      c(T,T,T,T), format = 'latex'),
+#         ch.row('Village TT',      c(T,T,T,T), format = 'latex'),
+#         ch.row('State X Year FE', c(T,T,T,T), format = 'latex'),
 #             c("Dep. Var. Mean", dvmean_CH, dvmean_JH, dvmean_MH, dvmean_OR),
 #             c("N. Villages",    nvill_CH,  nvill_JH,  nvill_MH, nvill_OR)
-#           ),
-#       out = file.path(out, 'fe_estimates_village_state.tex'))
+#           ), out = file.path(out, 'fe_estimates_village_state.tex'))
 #
 
 

@@ -17,3 +17,5 @@
 *.Rds
 *.tab
 *.swp
+teX/*
+tmp/*
