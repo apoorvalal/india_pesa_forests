@@ -2,7 +2,7 @@
 rm(list=ls())
 # install_github('apoorvalal/LalRUtils')
 library(LalRUtils)
-libreq(tidyverse,magrittr, data.table, rio, tictoc)
+libreq(tidyverse,magrittr, data.table, rio, tictoc, fst)
 ####################################################
 #%% reshape - run once
 widedat = fread('../inp/village_points_all_mines.csv')
@@ -40,8 +40,7 @@ dat_long %<>% tidyr::separate(col = deforestation, into = c(NA, 'y'), sep = -2)
 dat_long %>% mutate(year = 2000 + as.numeric(str_replace(y, "_", ''))) %>%
   select(-y) %>% setDT ->
   dat_long_clean
-#%%
-# arrange by village + year
+#%% # arrange by village + year
 setorder(dat_long_clean, state_ut, district, sub_dist, name, code_2011)
 #%%
 ############################################################
@@ -83,44 +82,49 @@ toc()
 dat_long_clean = dat_long_clean[tot_pop > 0 & tot_pop < 1000000]
 # dedupe
 dat_long_clean = dat_long_clean[, .SD[1], by = .(code_2011, year)]
-#%%
-tic()
-saveRDS(dat_long_clean, '../tmp/villages_estimation_sample.rds') # write file for future runs
-export(dat_long_clean, '../tmp/villages_estimation_sample.dta') # for stata
-toc()
-
-# %%
-df = copy(dat_long_clean)
-
 # %% identifiers
-df[, dist := as.factor(district)][,
+dat_long_clean[, dist := as.factor(district)][,
      block := as.factor(nameb)][,
      sub_dist2 := as.factor(sub_dist)][,
      state := as.factor(state_ut)][,
      village := as.factor(code_2011)]
 # state X year FE
-df[, styear := .GRP, by =  .(state, year)]
+dat_long_clean[, styear := .GRP, by =  .(state, year)]
 
 # %% outcome and time variables prep
-df[, def_ha := def * 0.09][,
+dat_long_clean[, def_ha := def * 0.09][,
   D         := sch * pesa_exposure][,
   t         := year - 2000][,
   t2        := t^2]
 
 # %% demographic vars
-df[, tot_non_sc_st := tot_pop - (tot_sc + tot_st)][,
+dat_long_clean[, tot_non_sc_st := tot_pop - (tot_sc + tot_st)][,
      st_share      := tot_st/tot_pop][,
      st_plurality  := fifelse(tot_st > max(tot_sc, tot_non_sc_st), 1, 0)][,
      D_X_st_plurality := D * st_plurality]
 
 # %% pre-period forest cover deciles and main analysis cutoff
-df[, pref_bin := ntile(pref_mean, 10)]
+dat_long_clean[, pref_bin := ntile(pref_mean, 10)]
 # cutoff for 2%
-df[, pref := fifelse(pref_mean >= 2, 1, 0)]
-df$yr = as.factor(df$year)
+dat_long_clean[, pref := fifelse(pref_mean >= 2, 1, 0)]
+dat_long_clean[,   yr := as.factor(year)]
 
-# write out intermediate file
-saveRDS(df, file.path(root, 'tmp/villages_estimation_sample.rds'))
+# %%
+tic()
+write_fst(dat_long_clean, '../tmp/villages_estimation_sample.fst') # write file for future runs
+toc()
+
+# %%
+tic()
+saveRDS(dat_long_clean, '../tmp/villages_estimation_sample.rds') # write file for future runs
+toc()
+
+# %%
+tic()
+fwrite(dat_long_clean, '../tmp/villages_estimation_sample.csv') # for stata
+toc()
+
+# %%
 
 # %%
 ##     ## #### ##    ## ########

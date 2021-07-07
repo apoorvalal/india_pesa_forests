@@ -1,4 +1,5 @@
 *.csv
+*.csv.tar.gz
 *.dta
 *.ipynb_checkpoints
 .vscode/*
@@ -13,9 +14,12 @@
 *.shx
 *.qpj
 *.dbf
+*.spq
+*.fst
 *.RData
-*.Rds
+*.rds
 *.tab
 *.swp
 teX/*
 tmp/*
+ref/*

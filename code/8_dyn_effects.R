@@ -33,12 +33,14 @@ dat = dat_est[, .SD[1], by = .(state_ut, year)]
 # %% fig 3
 dat[,def_ha  :=  def * 0.09]
 
-p = panelView(def_ha ~ pesa_exposure,
+(p = panelView(def_ha ~ pesa_exposure,
               legend.labs = c("Pre PESA election", "Post PESA election"),
   data = dat, index = c("state_ut","year"), xlab = "Year", ylab = "State", by.timing = T,
   main = "", theme.bw = T, background = 'white')
   # main = 'PESA Adoption Timing', by.treatment = TRUE)
+)
 
+# %%
 ggsave(file.path(out, 'PESA_adopt2.pdf'), p, device = cairo_pdf, width = 10, height = 6)
 # %%
 
@@ -51,6 +53,68 @@ ggsave(file.path(out, 'PESA_adopt2.pdf'), p, device = cairo_pdf, width = 10, hei
 ##        ##   ##  ##       ##  ####    ##
 ##         ## ##   ##       ##   ###    ##
 ########    ###    ######## ##    ##    ##
+#%% event time dummies
+tic()
+df = import("../inp/est_clean2.rds") %>% setDT
+toc()
+# %%
+n = colnames(df)
+n %>% grep('dist_to', .) %>% n[.] -> dropcols
+df[, (dropcols) := NULL]
+# %%
+df = df[state_ut %in% c("Odisha", "Chhattisgarh", "Maharashtra", "Jharkhand")]
+df[,
+  treat_year :=  case_when(
+     state_ut == 'Chhattisgarh'     ~ 2005,
+     state_ut == 'Jharkhand'        ~ 2010,
+     state_ut == 'Maharashtra'      ~ 2007,
+     state_ut == 'Odisha'           ~ 2002)]
+# %%
+###     ######    ######
+## ##   ##    ##  ##    ##
+##   ##  ##        ##
+##     ## ##   #### ##   ####
+######### ##    ##  ##    ##
+##     ## ##    ##  ##    ##
+##     ##  ######    ######
+
+# %% fig 4
+pref_samp = widedat[pref == 1]
+pref_samp[, rel_year := year - treat_year]
+pref_samp %>% glimpse
+# %%
+summaries = pref_samp[, .(avg = mean(def_ha, na.rm = T)), by = .(rel_year, sch)]
+summaries[, group_avg := mean(avg), by = sch]
+summaries[, demeaned_avg := avg - group_avg]
+summaries[, sch2 := ifelse(sch == 0, "Non-Scheduled", "Scheduled")]
+
+(summaries [rel_year %in% -5:5] %>%
+  ggplot(
+    aes(x = rel_year, y = demeaned_avg, colour = as.factor(sch2))) +
+  geom_point() +
+  geom_smooth(data = summaries[rel_year %in% -5:-1], size = 0.5, method = 'lm', se = F) +
+  geom_smooth(data = summaries[rel_year %in% 0:5],   size = 0.5, method = 'lm', se = F) +
+  scale_colour_brewer(palette = "Set1") +
+  geom_vline(xintercept = -0.5, linetype = 'dotted', alpha = 0.6) +
+  scale_x_continuous(breaks = -5:5) +
+  labs(title = "",
+      y = "Residual Deforestation", x = "Event Time",
+      colour = "") -> agg_trends
+)
+
+# %%
+ggsave(file.path(out, 'levels_time_trends.pdf'), agg_trends, device = cairo_pdf,
+  width = 10, height = 8)
+
+# %%
+  ######## ##     ##  ######  ######## ##     ## ########
+  ##       ##     ## ##    ##    ##    ##     ## ##     ##
+  ##       ##     ## ##          ##    ##     ## ##     ##
+  ######   ##     ##  ######     ##    ##     ## ##     ##
+  ##        ##   ##        ##    ##    ##     ## ##     ##
+  ##         ## ##   ##    ##    ##    ##     ## ##     ##
+  ########    ###     ######     ##     #######  ########
+
 #%% event time dummies
 tic()
 df = import("../tmp/est_clean2.rds") %>% setDT
@@ -77,6 +141,8 @@ df[,
 df[, `:=`(
   vilf = as.factor(code_2011),
   yf   = as.factor(year) )]
+
+
 # %% subset to pref # %% create dummies
 df[, lag := if_else(sch == 1, year - treat_year, 0)]
 df %>% dummy_cols(select_columns = "lag",
@@ -84,54 +150,6 @@ df %>% dummy_cols(select_columns = "lag",
 lagcols = names(widedat) %>% str_subset("lag")
 # %%
 widedat %>% glimpse
-# %%
-###     ######    ######
-## ##   ##    ##  ##    ##
-##   ##  ##        ##
-##     ## ##   #### ##   ####
-######### ##    ##  ##    ##
-##     ## ##    ##  ##    ##
-##     ##  ######    ######
-
-# %% fig 4
-widedat[, table(sch)]
-pref_samp = widedat[pref == 1]
-pref_samp[, rel_year := year - treat_year]
-pref_samp %>% glimpse
-# %%
-summaries = pref_samp[, .(avg = mean(def_ha, na.rm = T)), by = .(rel_year, sch)]
-summaries[, group_avg := mean(avg), by = sch]
-summaries[, demeaned_avg := avg - group_avg]
-
-summaries[, sch2 := ifelse(sch == 0, "Non-Scheduled", "Scheduled")]
-
-(summaries [rel_year %in% -5:5] %>%
-  ggplot(
-    aes(x = rel_year, y = demeaned_avg, colour = as.factor(sch2))) +
-  geom_point() +
-  geom_smooth(data = summaries[rel_year %in% -5:-1], size = 0.5, method = 'lm', se = F) +
-  geom_smooth(data = summaries[rel_year %in% 0:5],   size = 0.5, method = 'lm', se = F) +
-  scale_colour_brewer(palette = "Set1") +
-  geom_vline(xintercept = -0.5, linetype = 'dotted', alpha = 0.6) +
-  scale_x_continuous(breaks = -5:5) +
-  labs(title = "",
-      y = "Residual Deforestation", x = "Event Time",
-      colour = "") -> agg_trends
-)
-
-# %%
-ggsave(file.path(out, 'levels_time_trends.pdf'), agg_trends, device = cairo_pdf,
-  width = 10, height = 8)
-
-  ######## ##     ##  ######  ######## ##     ## ########
-  ##       ##     ## ##    ##    ##    ##     ## ##     ##
-  ##       ##     ## ##          ##    ##     ## ##     ##
-  ######   ##     ##  ######     ##    ##     ## ##     ##
-  ##        ##   ##        ##    ##    ##     ## ##     ##
-  ##         ## ##   ##    ##    ##    ##     ## ##     ##
-  ########    ###     ######     ##     #######  ########
-
-
 
 # %% fig 6
 mini = -6
