@@ -1,0 +1,29 @@
+
+\begin{table}[!htbp] \centering \footnotesize
+  \caption{Treatment Effects on Annual Deforestation by mine density within 5 km buffer} 
+  \label{table:reg_mine_density} 
+\begin{tabular}{@{\extracolsep{0pt}}lcc} 
+\\[-1.8ex]\hline \\[-1.8ex] 
+\\[-1.8ex] & \multicolumn{2}{c}{Annual Deforestation in Hectares} \\ 
+\\[-1.8ex] & (1) & (2)\\ 
+\hline \\[-1.8ex] 
+  Scheduled $\times$ PESA & $-$0.079$^{***}$ & $-$0.080$^{***}$ \\ 
+  & (0.008) & (0.009) \\ 
+  Scheduled $\times$ PESA $\times$ Number of Mines within 5 km & $-$0.034$^{***}$ &  \\ 
+  & (0.009) &  \\ 
+  Scheduled $\times$ PESA $\times$ 1-2 Mines within 5 km &  & $-$0.037$^{***}$ \\ 
+  &  & (0.013) \\ 
+  Scheduled $\times$ PESA $\times$ 3-4 Mines within 5 km &  & $-$0.141$^{***}$ \\ 
+  &  & (0.053) \\ 
+  Scheduled $\times$ PESA $\times$ 5+ Mines within 5km &  & $-$0.128 \\ 
+  &  & (0.133) \\ 
+ Village FE & $\checkmark$ & $\checkmark$ \\ 
+Year FE & $\checkmark$ & $\checkmark$ \\ 
+Dep. Var. Mean & 0.22 & 0.22 \\ 
+N. Villages & 52776 & 52776 \\ 
+N & 897,192 & 897,192 \\ 
+\hline \\[-1.8ex] 
+\multicolumn{3}{l}{$^{*}$p $<$ .1; $^{**}$p $<$ .05; $^{***}$p $<$ .01} \\ 
+\multicolumn{3}{l}{Cluster-Robust Standard Errors (by village)} \\ 
+\end{tabular} 
+\end{table} 

@@ -1,0 +1,112 @@
+\usepackage[margin=1in]{geometry}
+% \usepackage{fullpage}
+% \usepackage[foot]{amsaddr}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{caption}
+% \usepackage{mathrsfs}
+\usepackage{latexsym}
+\usepackage{epsfig}
+
+\usepackage{etoolbox}
+\AtBeginEnvironment{quote}{\singlespacing\small}
+
+\usepackage{lineno}
+
+
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{setspace}
+%\usepackage{breakurl}
+
+\usepackage{url}
+\makeatletter
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
+\makeatother
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{graphicx}
+
+\oddsidemargin 0.25cm
+\usepackage{morefloats}
+\usepackage{tikz}
+\usepackage{placeins}
+\usepackage{cases}
+\usepackage{footmisc}
+\usepackage{dsfont}
+
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{adjustbox}
+\usepackage{amsthm}
+\usepackage{threeparttable}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lscape}
+% \usepackage{scrwfile}
+\usepackage{setspace}
+\usepackage{multirow}
+\usepackage{newclude}
+
+\usepackage{todonotes}
+
+
+\usepackage{lscape}
+\newcommand{\bland}{\begin{landscape}}
+\newcommand{\eland}{\end{landscape}}
+
+
+\newcommand{\bburl}[1]{\textcolor{blue}{\url{#1}}}
+
+\definecolor{maroon}{rgb}{0.5, 0.0, 0.0}
+
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Apoorva Lal},
+             pdfkeywords = {},
+            colorlinks=true,
+            citecolor=maroon,
+            urlcolor=blue,
+            linkcolor=blue,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+
+% \usepackage{tikz}
+% \usepackage{tkz-tab}
+% \usepackage{tkz-graph}
+\usetikzlibrary{shapes.geometric,positioning}
+\newcommand{\blue}[1]{\textcolor{blue}{(\bf{#1})}}
+\newcommand{\emaillink}[1]{\textcolor{blue}{\href{mailto:#1}{#1}}}
+\newcommand{\burl}[1]{\textcolor{blue}{\url{#1}}}
+\newcommand{\fix}[1]{\textcolor{red}{\textbf{ (#1)\normalsize}}}
+\newcommand{\fixed}[1]{\textcolor{green}{~\\ \textbf{#1\normalsize}}\\}
+\newcommand{\ind}{\otimes}
+\newcommand{\witi}{\widetilde}
+\newcommand{\ch}{{\bf 1}}
+\newcommand{\dt}[1]{\witi{\witi #1}}
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\lr}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\eqd}{\overset{\footnotesize{d}}{=}}
+\newcommand{\calf}{{\mathcal F}}
+
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\numberwithin{equation}{section}
+
+
+\input{math_shortcuts.tex}
+%

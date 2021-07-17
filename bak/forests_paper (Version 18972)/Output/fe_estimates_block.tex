@@ -1,0 +1,23 @@
+
+\begin{table}[!htbp] \centering 
+  \caption{Village level regressions clustered at block level} 
+  \label{table:regres2} 
+\begin{tabular}{@{\extracolsep{0pt}}lcccc} 
+\\[-1.8ex]\hline \\[-1.8ex] 
+\\[-1.8ex] & \multicolumn{4}{c}{Annual Deforestation in Hectares} \\ 
+\\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
+\hline \\[-1.8ex] 
+ Scheduled X PESA & $-$0.088$^{***}$ & $-$0.032 & $-$0.016 & $-$0.067$^{**}$ \\ 
+  & (0.020) & (0.027) & (0.019) & (0.032) \\ 
+ Village FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\ 
+Year FE & $\checkmark$ & $\checkmark$ &  &  \\ 
+Village TT &  & $\checkmark$ &  & $\checkmark$ \\ 
+State X Year FE &  &  & $\checkmark$ & $\checkmark$ \\ 
+Dep. Var. Mean & 0.22 & 0.22 & 0.22 & 0.22 \\ 
+N. Villages & 52776 & 52776 & 52776 & 52776 \\ 
+N & 897,192 & 897,192 & 897,192 & 897,192 \\ 
+\hline \\[-1.8ex] 
+\multicolumn{5}{l}{$^{*}$p $<$ .1; $^{**}$p $<$ .05; $^{***}$p $<$ .01} \\ 
+\multicolumn{5}{l}{Cluster-Robust Standard Errors (by block)} \\ 
+\end{tabular} 
+\end{table} 

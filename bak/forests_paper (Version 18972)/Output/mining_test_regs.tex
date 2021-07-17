@@ -1,0 +1,33 @@
+
+\begin{table}[!htbp] \footnotesize \centering 
+  \caption{Treatment Effects on Annual Deforestation by Distance to Nearest Mine. } 
+  \label{table:regresmine} 
+\begin{tabular}{@{\extracolsep{0pt}}lccccc} 
+\\[-1.8ex]\hline \\[-1.8ex] 
+\\[-1.8ex] & \multicolumn{5}{c}{Annual Deforestation in Hectares} \\ 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5)\\ 
+\hline \\[-1.8ex] 
+ Scheduled $\times$ PESA $\times$ 1st Tercile & $-$0.093$^{***}$ & $-$0.043$^{***}$ & $-$0.025$^{**}$ & $-$0.079$^{***}$ &  \\ 
+  & (0.010) & (0.014) & (0.010) & (0.015) &  \\ 
+  Scheduled $\times$ PESA $\times$ 2nd Tercile & $-$0.103$^{***}$ & $-$0.034$^{**}$ & $-$0.026$^{**}$ & $-$0.077$^{***}$ &  \\ 
+  & (0.012) & (0.016) & (0.011) & (0.016) &  \\ 
+  Scheduled $\times$ PESA $\times$ 3rd Tercile & $-$0.052$^{***}$ & $-$0.004 & 0.018 & $-$0.031 &  \\ 
+  & (0.017) & (0.026) & (0.017) & (0.025) &  \\ 
+  Scheduled $\times$ PESA &  &  &  &  & $-$0.061$^{***}$ \\ 
+  &  &  &  &  & (0.012) \\ 
+  Scheduled $\times$ PESA $\times$ Mine within 5 km &  &  &  &  & $-$0.052$^{**}$ \\ 
+  &  &  &  &  & (0.020) \\ 
+ Village FE & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\ 
+Year FE & $\checkmark$ & $\checkmark$ &  &  &  \\ 
+Village TT &  & $\checkmark$ &  & $\checkmark$ & $\checkmark$ \\ 
+State $\times$ Year FE &  &  & $\checkmark$ & $\checkmark$ & $\checkmark$ \\ 
+Dep. Var. Mean & 0.22 & 0.22 & 0.22 & 0.22 & 0.22 \\ 
+N. Villages & 52776 & 52776 & 52776 & 52776 & 52776 \\ 
+N & 897,192 & 897,192 & 897,192 & 897,192 & 897,192 \\ 
+\hline \\[-1.8ex] 
+\multicolumn{6}{l}{$^{*}$p $<$ .1; $^{**}$p $<$ .05; $^{***}$p $<$ .01} \\ 
+\multicolumn{6}{l}{Cluster-Robust Standard Errors (by village)} \\ 
+\multicolumn{6}{l}{Terciles are defined based on the distribution of village distances to mines,} \\
+\multicolumn{6}{l}{ with the 1$^{st}$ being $1-33$ percentile, and so on.}
+\end{tabular} 
+\end{table} 

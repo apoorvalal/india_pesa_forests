@@ -1,0 +1,347 @@
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amscd,bbm}
+
+% command shorthand
+\newcommand{\eg}{e.g., \xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\etc}{etc.\@\xspace}
+\newcommand{\iid}{\emph{i.i.d.}\ }
+\newcommand{\etal}{et.\ al.\ }
+\newcommand{\D}{\displaystyle}
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\bs}{\begin{align}\begin{split}\nonumber}
+\newcommand{\bsnumber}{\begin{align}\begin{split}}
+\newcommand{\es}{\end{split}\end{align}}
+\newcommand{\fns}{\singlespace\footnotesize}
+
+% math shorthand
+% vertical equal prefix
+\newcommand{\verteq}{\rotatebox{90}{$\,=$}}
+% vertical equal to
+\newcommand{\equalto}[2]{\underset{\scriptstyle\overset{\mkern4mu\verteq}{#2}}{#1}}
+% nullspace
+\newcommand{\nulls}{\mathrm{null}}
+% range
+\newcommand{\range}{\mathrm{range}}
+% maximise
+\newcommand{\maximise}{\operatornamewithlimits{max}}
+% minimise
+\newcommand{\minimise}{\operatornamewithlimits{min}}
+% maximiser
+\newcommand{\argmax}{\operatornamewithlimits{arg\,max}}
+
+% such that (inside math mode)
+\newcommand{\suchthat}{\text{ s.t. }}
+
+% indicator function
+\newcommand*\Indic[1]{\mathbbm{1}_{#1}}
+
+% big parentheses
+\newcommand*\Bigpar[1]{\left( #1 \right )}
+
+% convergence in probability sideways
+\def\inprobLOW{\rightarrow_p}
+% convergence in probability
+\def\inprobHIGH{\,{\buildrel p \over \rightarrow}\,}
+% convergence in probability 2
+\def\inprob{\,{\inprobHIGH}\,}
+% convergence in distribution
+\def\indist{\,{\buildrel d \over \rightarrow}\,}
+
+% equality in distribution
+\def\eqdist{\,{\buildrel d \over = }\,}
+
+% independence (bench)
+\newcommand\indep{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern5mu{#1#2}}}
+
+% ellipsis
+\newcommand{\tto}{,\ldots,}
+
+% blackboard F
+\def\Function{\mathbb{F}}
+
+% Lagrangian
+\def\Lagr{\mathcal{L}}
+
+% n-dimensional Real
+\def\Realn{\mathbb{R}^n}
+
+% P_n
+\def\Probn{\mathbb{P}_n}
+
+\def\rel{\,{\buildrel R \over \sim}\,}
+% generic m x n matrix
+\newcommand{\gmatrix}[1]{\begin{pmatrix} {#1}_{11} & \cdots &{#1}_{1n} \\ \vdots & \ddots & \vdots \\ {#1}_{m1} & \cdots &{#1}_{mn} \end{pmatrix}}
+
+% Likelihood
+\newcommand{\Likl}{\mathcal{L}}
+
+% inner product
+\newcommand{\iprod}[2]{\left\langle {#1} , {#2} \right\rangle}
+% vector norm
+\newcommand{\norm}[1]{\left\Vert {#1} \right\Vert}
+% absolute value
+\newcommand{\abs}[1]{\left\vert {#1} \right\vert}
+% linalg misc
+\renewcommand{\det}{\mathrm{det}}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\spn}{\mathrm{span}}
+\newcommand{\row}{\mathrm{Row}}
+\newcommand{\col}{\mathrm{Col}}
+\renewcommand{\dim}{\mathrm{dim}}
+% weakly prefer
+\newcommand{\prefeq}{\succeq}
+% strictly prefer
+\newcommand{\pref}{\succ}
+% sequence
+\newcommand{\seq}[1]{\{{#1}_n \}_{n=1}^\infty }
+% single arrow
+\renewcommand{\to}{{\rightarrow}}
+% double arrow
+\newcommand{\corres}{\overrightarrow{\rightarrow}}
+% evaluate definite integral
+\newcommand*\Eval[3]{\left.#1\right\rvert_{#2}^{#3}}
+% expectation
+\newcommand{\Exp}[1]{\mathbb{E}\left(#1\right)}
+% expectation at time
+\newcommand{\Expt}[2]{\mathbb{E}_{#1}\left(#2\right)}
+% variance
+\newcommand{\Var}[1]{\mathbb{V}\left(#1\right)}
+% Probability
+\newcommand{\Prob}[1]{\mathbb{Pr}\left(#1\right)}
+\newcommand{\F}{\mathscr{F}}
+\newcommand{\f}{\widehat{\eta}}
+%Blackboard Letters
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\W}{\mathbb{W}}
+\newcommand{\Qoft}{\mathbb{Q}(t)}  %use in linux
+
+\newcommand\frakfamily{\usefont{U}{yfrak}{m}{n}}
+\DeclareTextFontCommand{\textfrak}{\frakfamily}
+
+% Fractions
+\newcommand{\fof}{\frac{1}{4}}  %oneforth
+\newcommand{\foh}{\frac{1}{2}}  %onehalf
+\newcommand{\fot}{\frac{1}{3}}  %onethird
+\newcommand{\fop}{\frac{1}{\pi}}    %1/pi
+\newcommand{\ftp}{\frac{2}{\pi}}    %2/pi
+\newcommand{\fotp}{\frac{1}{2 \pi}} %1/2pi
+\newcommand{\fotpi}{\frac{1}{2 \pi i}}
+\newcommand{\cm}{c_{\text{{\rm mean}}}}
+\newcommand{\cv}{c_{\text{{\rm variance}}}}
+
+
+% math shorthand
+% vertical equal prefix
+
+% minimiser
+\newcommand{\argmin}{\operatornamewithlimits{arg\,min}}
+% convergence in probability sideways
+\def\inprobLOW{\rightarrow_p}
+% convergence in probability
+\def\inprobHIGH{\,{\buildrel p \over \rightarrow}\,}
+% convergence in probability 2
+\def\inprob{\,{\inprobHIGH}\,}
+% convergence in distribution
+\def\indist{\,{\buildrel d \over \rightarrow}\,}
+
+% such that
+\def\ST{\text{ s.t. }}
+
+% if
+\def\IF{\text{ if }}
+
+
+% blackboard F
+\def\Function{\mathbb{F}}
+
+% Natural
+\def\Nat{\mathbb{N}}
+% Integers
+\def\Int{\mathbb{Z}}
+% Reals
+\def\Real{\mathbb{R}}
+% Rationals
+\def\Rat{\mathbb{Q}}
+% Complex
+\def\Cplx{\mathbb{C}}
+
+\newcommand{\reals}{\mathbb{R}} % Real number symbol
+\newcommand{\integers}{\mathbb{Z}} % Integer symbol
+\newcommand{\rationals}{\mathbb{Q}} % Rational numbers
+\newcommand{\naturals}{\mathbb{N}} % Natural numbers
+
+% n-dimensional Real
+\def\Realn{\mathbb{R}^n}
+% expectation_n
+\def\Expn{\mathbb{E}_n}
+% P_n
+\def\Probn{\mathbb{P}_n}
+
+\def\rel{\,{\buildrel R \over \sim}\,}
+
+
+
+\renewcommand{\det}{\mathrm{det}}
+\renewcommand{\dim}{\mathrm{dim}}
+% single arrow
+\renewcommand{\to}{{\rightarrow}}
+
+\newcommand{\mc}[1]{\mathcal{#1}}
+\def\mbf#1{\mathbf{#1}}
+\def\mrm#1{\mathrm{#1}}
+\def\mbi#1{\boldsymbol{#1}} % Bold and italic (math bold italic)
+\def\v#1{\mbi{#1}} % Vector notation
+
+\newcommand{\lone}[1]{\norm{#1}_1} % l1 norm
+\newcommand{\ltwo}[1]{\norm{#1}_2} % l2 norm
+\newcommand{\linf}[1]{\norm{#1}_\infty} % l-infinity norm
+\newcommand{\dnorm}[1]{\norm{#1}_*} % Dual norm
+\newcommand{\lfro}[1]{\left\|{#1}\right\|_{\rm Fr}} % Frobenius norm
+\newcommand{\matrixnorm}[1]{\left|\!\left|\!\left|{#1}
+  \right|\!\right|\!\right|} % Matrix norm with three bars
+\newcommand{\matrixnorms}[1]{|\!|\!|{#1}|\!|\!|} % Small matrix norm
+\newcommand{\opnorm}[1]{\matrixnorm{#1}_{\rm op}}
+\newcommand{\opnorms}[1]{\matrixnorms{#1}_{\rm op}}
+\newcommand{\normbigg}[1]{\bigg\|{#1}\bigg\|} % A norm with 1 argument and bigg
+                                              % brackets.
+\newcommand{\lonebigg}[1]{\normbigg{#1}_1} % l1 norm
+\newcommand{\ltwobigg}[1]{\normbigg{#1}_2} % l2 norm
+\newcommand{\linfbigg}[1]{\normbigg{#1}_\infty} % l-infinity norm
+\newcommand{\norms}[1]{\|{#1}\|} % A norm with 1 argument and normal (small)
+                                 % brackets.
+\newcommand{\lones}[1]{\norms{#1}_1} % l1 norm with small brackets
+\newcommand{\ltwos}[1]{\norms{#1}_2} % l2 norm with small brackets
+\newcommand{\linfs}[1]{\norms{#1}_\infty} % l-infinity norm with small brackets
+
+\newcommand{\hinge}[1]{\left[{#1}\right]_+}
+
+\newcommand{\defeq}{:=}
+\newcommand{\eqdef}{=:}
+\newcommand{\what}[1]{\widehat{#1}} % Wide hat
+\newcommand{\wt}[1]{\widetilde{#1}} % Wide tilde
+\newcommand{\wb}[1]{\overline{#1}} % Wide bar
+
+\newcommand{\half}{\frac{1}{2}}
+
+\newcommand{\<}{\left\langle} % Angle brackets
+\renewcommand{\>}{\right\rangle} % End angle brackets
+
+\renewcommand{\iff}{\Leftrightarrow}
+\renewcommand{\choose}[2]{\binom{#1}{#2}}  % Choose
+\newcommand{\chooses}[2]{{}_{#1}C_{#2}}  % Small choose
+
+%%%% Probability symbols and associated distances %%%%
+
+\newcommand{\E}{\mathbb{E}} % Expectation symbol
+\renewcommand{\P}{\mathbb{P}} % Probability symbol
+\newcommand{\var}{{\rm Var}} % Variance
+\newcommand{\cov}{\mathop{\rm Cov}} % Covariance
+\newcommand{\simiid}{\stackrel{\rm iid}{\sim}}
+\newcommand{\openleft}[2]{\left({#1},{#2}\right]} % Interval open on left
+\newcommand{\openright}[2]{\left[{#1},{#2}\right)} % Interval open on right
+
+\newcommand{\indic}[1]{\mbf{1}\left\{#1\right\}} % Indicator function
+
+% Distances between probability measures
+\newcommand{\tvnorm}[1]{\norm{#1}_{\rm TV}} % Total variation
+\newcommand{\tvnorms}[1]{\norms{#1}_{\rm TV}}
+\newcommand{\dkl}[2]{D_{\rm kl}\left({#1} |\!| {#2}\right)} % KL divergence
+\newcommand{\dkls}[2]{D_{\rm kl}({#1} |\!| {#2})}  % Small KL-divergence
+\newcommand{\dchi}[2]{D_{\chi^2}\left({#1} |\!| {#2}\right)}  % chi^2-divergence
+\newcommand{\fdiv}[2]{D_f\left({#1} |\!| {#2}\right)} % f divergence
+\newcommand{\kl}[2]{D_{\rm kl}\left({#1} |\!| {#2} \right)}
+\newcommand{\dhel}{d_{\rm hel}}  % Hellinger distance
+\newcommand{\helaff}{A_{\rm hel}}  % Hellinger affinity
+
+% Convergence of random variables
+\newcommand{\cd}{\stackrel{d}{\rightarrow}}
+\newcommand{\cas}{\stackrel{a.s.}{\rightarrow}}
+\newcommand{\cp}{\stackrel{p}{\rightarrow}}
+
+\newcommand{\normal}{\mathsf{N}}  % Normal distribution
+\newcommand{\uniform}{\mathsf{Uni}}  % Uniform distribution
+
+% Simple floor/ceiling stuff
+\newcommand{\floor}[1]{\left\lfloor{#1} \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil{#1} \right\rceil}
+
+\providecommand{\argmax}{\mathop{\rm argmax}} % Defining math symbols
+\providecommand{\argmin}{\mathop{\rm argmin}}
+\providecommand{\dom}{\mathop{\rm dom}}
+\providecommand{\diag}{\mathop{\rm diag}}
+\providecommand{\tr}{\mathop{\rm tr}}
+\providecommand{\abs}{\mathop{\rm abs}}
+\providecommand{\card}{\mathop{\rm card}}
+\providecommand{\sign}{\mathop{\rm sign}}
+\providecommand{\cl}{\mathop{\rm cl}}
+\providecommand{\interior}{\mathop{\rm int}}
+\providecommand{\conv}{\mathop{\rm Conv}}
+\providecommand{\relint}{\mathop{\rm relint}}
+\providecommand{\vol}{\mathop{\rm Vol}}
+\providecommand{\supp}{\mathop{\rm supp}}
+
+\providecommand{\minimize}{\mathop{\rm minimize}}
+\providecommand{\maximize}{\mathop{\rm maximize}}
+\providecommand{\subjectto}{\mathop{\rm subject\;to}}
+
+% Proof environments
+% The Theorems are numbered consecutively
+% Lemmas are numbered by section, and observations, claims, facts, and
+% assumptions take their numbering. Propositions and definitions have their
+% own numbering by section.
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{assumption}{Assumption}
+\newtheorem{cla}[thm]{Claim}
+\newtheorem{conjecture}[thm]{Conjecture}
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{defi}[thm]{Definition}
+\newtheorem{egg}[thm]{Example}
+\newtheorem{exe}[thm]{Exercise}
+\newtheorem{hypothesis}[thm]{Hypothesis}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prob}[thm]{Problem}
+\newtheorem{proj}[thm]{Research Project}
+\newtheorem{proposition}[thm]{Proposition}
+\newtheorem{propn}[thm]{Proposition}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{que}[thm]{Question}
+\newtheorem{rek}[thm]{Remark}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{X}{X}[section]
+
+
+\renewenvironment{proof}{\noindent{\bf Proof}\hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proof-sketch}{\noindent{\bf Sketch of Proof}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proof-idea}{\noindent{\bf Proof Idea}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proof-of-lemma}[1][{}]{\noindent{\bf Proof of Lemma {#1}}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proof-of-proposition}[1][{}]{\noindent{\bf
+    Proof of Proposition {#1}}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proof-of-theorem}[1][{}]{\noindent{\bf Proof of Theorem {#1}}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{inner-proof}{\noindent{\bf Proof}\hspace{1em}}{
+  $\bigtriangledown$\medskip\\}
+%% \newenvironment{proof-of-lemma}[1][{}]{\noindent{\bf Proof of Lemma {#1}}
+%%   \hspace*{1em}\renewcommand{\qedsymbol}{$\bigtriangledown$}}{\qed\bigskip\\}
+\newenvironment{proof-attempt}{\noindent{\bf Proof Attempt}
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{proofof}[1]{\noindent{\bf Proof} of {#1}:
+  \hspace*{1em}}{\qed\bigskip\\}
+\newenvironment{remark}{\noindent{\bf Remark}
+  \hspace*{1em}}{\bigskip}
+
