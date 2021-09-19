@@ -1,27 +1,25 @@
 # %% ####################################################
 rm(list=ls())
 library(LalRUtils)
-LalRUtils::libreq(tidyverse, data.table, zoo, tictoc, fst,
-  fixest, PanelMatch, rio, magrittr, janitor, did,
-  panelView)
+libreq(tidyverse, data.table, zoo, tictoc, fst, fixest, PanelMatch, patchwork,
+  rio, magrittr, janitor, did, panelView, ggiplot)
 set.seed(42)
 theme_set(lal_plot_theme())
 # %% ####################################################
 dbox_root = '/home/alal/res/india_pesa_forests'
 root = dbox_root
-data = file.path(root , 'inp')
-tmp  = file.path(root, "tmp")
+data = file.path(root, 'inp')
+tmp  = file.path(root, 'tmp')
 # %%
 tic()
 df = read_fst(file.path(tmp, 'vcf_cell_sample.fst')) %>% setDT # write file for future runs
 toc()
 # %% sort
 setorder(df, cellid, year)
-df[, blk   := .GRP, by =  .(state, year)]
+df[, blk   := .GRP, by =  .(block, state, year)]
 # %% sanity check
 df[, sum_index := forest_index + green_index + built_index]
 df$sum_index %>% summary
-
 # %% # construct ex-ante cover using 5 year window preceding treatment
 slice = df[, .(cellid, forest_index, green_index, built_index, D, state, year, first_pesa_exposure)]
 slice[, first_pesa_exposure := max(first_pesa_exposure, na.rm = T), state]
@@ -44,9 +42,78 @@ f0 = panelView(out ~ treat,
   xlab = "Year", ylab = "State", main = "Scheduled Areas PESA Status \n VCF cell level data",
   by.timing = TRUE, legendOff = TRUE,
   background = "white")
-ggsave(file.path(root, "out/panelview_vcf.pdf"), height = 8, width = 10, device = cairo_pdf)
-# %%
 
+ggsave(file.path(root, "out/panelview_vcf.pdf"), height = 8, width = 10, device = cairo_pdf)
+
+
+# %%
+###     ######    ######   ######## ####  ######    ######
+## ##   ##    ##  ##    ##  ##        ##  ##    ##  ##    ##
+##   ##  ##        ##        ##        ##  ##        ##
+##     ## ##   #### ##   #### ######    ##  ##   ####  ######
+######### ##    ##  ##    ##  ##        ##  ##    ##        ##
+##     ## ##    ##  ##    ##  ##        ##  ##    ##  ##    ##
+##     ##  ######    ######   ##       ####  ######    ######
+
+ex_ante_med = quantile(regsamp$ex_ante_forest, 0.5)
+# %% aggregate trends
+regsamp[, time := year - first_pesa_exposure]
+summaries = regsamp[ex_ante_forest >= ex_ante_med][, .(avg = mean(forest_index, na.rm = T)), by = .(time, sch)][,
+  group_avg := mean(avg), by = sch][,
+  demeaned_avg := avg - group_avg][,
+  sch2 := ifelse(sch == 0, "Non-Scheduled", "Scheduled")]
+(agg_forest_index = summaries[time %between% c(-10, 10)] %>%
+  ggplot(aes(x = time, y = demeaned_avg, colour = as.factor(sch2))) +
+  geom_point() +
+  geom_smooth(data = summaries[time %between% c(-10, -1)],size = 0.5, method = 'lm', se = F) +
+  geom_smooth(data = summaries[time %between% c(0, 10)],  size = 0.5, method = 'lm', se = F) +
+  scale_colour_brewer(palette = "Set1") +
+  geom_vline(xintercept = -0.5, linetype = 'dotted', alpha = 0.6) +
+  labs(title = "Forest", y = "Residual Forest", x = "Event Time", colour = "")
+)
+
+# %%
+regsamp[, time := year - first_pesa_exposure]
+summaries = regsamp[ex_ante_forest >= ex_ante_med][, .(avg = mean(green_index, na.rm = T)), by = .(time, sch)][,
+  group_avg := mean(avg), by = sch][,
+  demeaned_avg := avg - group_avg][,
+  sch2 := ifelse(sch == 0, "Non-Scheduled", "Scheduled")]
+(agg_green_index = summaries[time %between% c(-10, 10)] %>%
+  ggplot(aes(x = time, y = demeaned_avg, colour = as.factor(sch2))) +
+  geom_point() +
+  geom_smooth(data = summaries[time %between% c(-10, -1)],size = 0.5, method = 'lm', se = F) +
+  geom_smooth(data = summaries[time %between% c(0, 10)],  size = 0.5, method = 'lm', se = F) +
+  scale_colour_brewer(palette = "Set1") +
+  geom_vline(xintercept = -0.5, linetype = 'dotted', alpha = 0.6) +
+  theme(legend.pos = "None") +
+  labs(title = "Non-Forest Green", y = "Residual Non-Forest Green", x = "Event Time", colour = "")
+)
+
+# %%
+regsamp[, time := year - first_pesa_exposure]
+summaries = regsamp[ex_ante_forest >= ex_ante_med][,
+  .(avg = mean(built_index, na.rm = T)), by = .(time, sch)][,
+  group_avg := mean(avg), by = sch][,
+  demeaned_avg := avg - group_avg][,
+  sch2 := ifelse(sch == 0, "Non-Scheduled", "Scheduled")]
+(agg_built_index = summaries[time %between% c(-10, 10)] %>%
+  ggplot(aes(x = time, y = demeaned_avg, colour = as.factor(sch2))) +
+  geom_point() + theme(legend.pos = "None") +
+  geom_smooth(data = summaries[time %between% c(-10, -1)],size = 0.5, method = 'lm', se = F) +
+  geom_smooth(data = summaries[time %between% c(0, 10)],  size = 0.5, method = 'lm', se = F) +
+  scale_colour_brewer(palette = "Set1") +
+  geom_vline(xintercept = -0.5, linetype = 'dotted', alpha = 0.6) +
+  labs(title = "Built", y = "Residual Non-Forest Green", x = "Event Time", colour = "")
+)
+
+
+# %%
+fig_all = agg_forest_index / agg_green_index / agg_built_index
+
+ggsave(file.path(root, "out/agg_trends_vcf.pdf"), device = cairo_pdf, height = 10)
+
+
+# %%
 ########  #######  ########  ########  ######  ########
 ##       ##     ## ##     ## ##       ##    ##    ##
 ##       ##     ## ##     ## ##       ##          ##
@@ -88,7 +155,7 @@ etable(list(m0, m1, m2, m3),
   file = file.path(root, glue::glue("out/{fn}_{clustlev}.tex")), replace = TRUE)
 
 # %% above median sample
-(ex_ante_med = quantile(df$ex_ante_forest, 0.75))
+(ex_ante_med = quantile(regsamp$ex_ante_forest, 0.75))
 above_med = regsamp[ex_ante_forest > ex_ante_med]
 above_med[, never_treated := max(D) == 0, cellid]
 controls_pre1 = above_med[never_treated == 1 & year < first_pesa_exposure, mean(forest_index)]
@@ -120,7 +187,6 @@ fitter = function(cut) {
 cutmods = map_dfr(deciles, fitter)
 
 cutmods$dec = 1:9
-cutmods
 
 
 f = ggplot(cutmods, aes(x = dec, y = estimate)) +
@@ -244,7 +310,7 @@ evsamp = regsamp[time %between% c(-6, 6)]
 evsamp = evsamp[, non_forest_index := 100 - forest_index]
 evsamp = evsamp[, index_gap := forest_index - non_forest_index]
 
-# %%
+# %% event time
 state_status = evsamp[, .(out = 1, treat = max(D)), .(state, time)]
 panelView(out ~ treat,
   data = as.data.frame(state_status),
@@ -254,11 +320,10 @@ panelView(out ~ treat,
   background = "white")
 # %%
 (deciles = quantile(regsamp[year == 1995, ex_ante_forest], seq(0.1, 0.9, 0.1)))
-# %%
+# %% test
 estudy_plot = function(cutoff, title){
   es1 = feols(c(forest_index, green_index, built_index)  ~ i(time, sch,  ref=-1) | cellid + styear,
-    cluster = ~ blk,
-    evsamp[ex_ante_forest >= cutoff])
+    cluster = ~ blk, evsamp[ex_ante_forest >= cutoff])
   iplot(es1, pt.join = F, main = title, pch = 15, ylim = c(-3, 3), col = c(3, 2, 4))
 }
 estudy_plot2 = function(cutoff, title, ...){
@@ -268,8 +333,8 @@ estudy_plot2 = function(cutoff, title, ...){
   iplot(es1, pt.join = F, main = title, ...)
 }
 # %%
-pdf(file.path(root, "out/evstudy_vcf.pdf"), width = 12)
-par(mfrow = c(2, 3))
+pdf(file.path(root, "out/evstudy_vcf.pdf"), width = 12, height = 15)
+par(mfrow = c(3, 2))
 estudy_plot(deciles[1], "full sample")
 estudy_plot(deciles[2], "2nd decile and up")
 estudy_plot(deciles[4], "4th decile and up")
@@ -300,19 +365,43 @@ dev.off()
 ##        ##     ## ##    ## ######## ######## ##     ## ##     ##    ##     ######  ##     ##
 
 # %%
-
-tic()
+(ex_ante_med = quantile(regsamp$ex_ante_forest, 0.75))
+above_med = regsamp[ex_ante_forest > ex_ante_med]
+above_med[, never_treated := max(D) == 0, cellid]
+above_med[, stf := as.factor(state)]
+# %%
 match_ps <- PanelMatch(lag = 4, time.id = "year", unit.id = "cellid",
-                     treatment = "D",
-                     refinement.method = "ps.weight",
-                     data = evsamp,
-                     covs.formula = ~ I(lag(def_ha, 1:4)),
-                     exact.match.variables = c("stf", "pref_bin"),
-                     size.match = 10, qoi = "att" , outcome.var = "forest_index",
-                     lead = 0:4, forbid.treatment.reversal = FALSE,
-                     use.diagonal.variance.matrix = TRUE)
-ps_results <- PanelEstimate(sets = match_ps, data = matchdat)
+                     treatment = "D", refinement.method = "ps.weight",
+                     data = as.data.frame(above_med),
+                     covs.formula = ~ I(lag(forest_index, 1:4)),
+                     exact.match.variables = c("stf"), outcome.var = "forest_index",
+                     size.match = 10, qoi = "att" ,
+                     lead = 0:4, forbid.treatment.reversal = T,
+                     use.diagonal.variance.matrix = T)
+ps_results <- PanelEstimate(sets = match_ps, data = as.data.frame(above_med))
+# %%
+pdf(file.path(root, "out/PanelMatch_forest_vcf.pdf"))
+plot(ps_results, main = "Panel Match ATT Estimates - Forest Cover")
+dev.off()
+# %%
+tic()
+match_ps2 <- PanelMatch(lag = 4, time.id = "year", unit.id = "cellid",
+                     treatment = "D", refinement.method = "ps.weight",
+                     data = as.data.frame(above_med),
+                     covs.formula = ~ I(lag(green_index, 1:4)),
+                     exact.match.variables = c("stf"), outcome.var = "green_index",
+                     size.match = 10, qoi = "att" ,
+                     lead = 0:4, forbid.treatment.reversal = T,
+                     use.diagonal.variance.matrix = T)
+ps_results2 <- PanelEstimate(sets = match_ps2, data = as.data.frame(above_med))
 toc()
 
-save.image(file = file.path(out, "matching_ws.RData"))
-print("Matching Done")
+# %%
+pdf(file.path(root, "out/PanelMatch_green_vcf.pdf"))
+plot(ps_results2, main = "Panel Match ATT Estimates - Green Non-forest Cover")
+dev.off()
+
+# %%
+save(match_ps, match_ps2, ps_results, ps_results2, file = file.path(root, "tmp/panelMatch_res.RData"))
+# %%
+load(file.path(root, "tmp/panelMatch_res.RData"))

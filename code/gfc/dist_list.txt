@@ -1,0 +1,138 @@
+# %% Orissa
+or : ["mayurbhanj", "sundargarh", "koraput"]
+or_b_sch = [("sambalpur", "kochinda"),
+                 ("kendujhar", "kendujhargarh"), # found
+                 ("kendujhar", "telkoi"),
+                 ("kendujhar", "champua"),
+                 ("kendujhar", "banspal"),
+                 ("baudh", "kantamal"),
+                 ("kandhamal", "g.udayagiri"),  # fixed
+                 ("kandhamal", "baliguda"),
+                 ("kalahandi", "thuamul-rampur"), # fixed
+                 ("kalahandi", "lanjigarh"),
+                 ("baleshwar", "nilagiri"),
+                 ("gajapati", "r.udaygiri"), # fixed
+                 ("gajapati", "guma"),
+                 ("gajapati", "rayagada"),
+                 ("gajapati", "parlakhemundi (gosani)"), # fixed
+                 ("ganjam", "surada")]
+# %% Andhra
+
+ap : ["visakhapatnam", "east godavari"]
+ap_b_sch = [("adilabad", "adilabad"), ("adilabad", "boath"),
+                 ("adilabad", "asifabad"), ("adilabad", "sirpur"),
+                 ("adilabad", "luxettipet"), ("warangal", "mulug"),
+                 ("warangal", "narsampet"), ("khammam", "palwancha"),
+                 ("khammam", "yellandu")]
+# %% Jharkhand
+
+jh : [ "ranchi", "lohardaga", "gumla", "purbi singhbhum", "pashchimi singhbhum", "sahibganj", "pakaur", "dumka" ]
+jh_b_sch = [("gumla", "simdega"), ("palamu", "latehar"),
+                 ("palamu", "satbarwa"), ("godda", "sundarpahari"),
+                 ("godda", "boarijor"), ("dumka", "jamtara"),
+                 ("garhwa", "bhandaria")]
+# %% gujarat
+
+gu = []
+gu_b_sch = [
+       ("the dangs", "the dangs"),  # fixed, sep the dangs
+       ("bharuch", "jhagadia"),
+       ("bharuch", "valia"),
+       ("dohad", "devgadbaria"),
+       ("dohad", "dohad"),
+       ("dohad", "jhalod"),
+       ("dohad", "limkheda"),
+       ("dohad", "devgadbaria"),
+       ("narmada", "dediapada"),
+       ("narmada", "nandod"),
+       ("narmada", "sagbara"),
+       ("panch mahals", "santrampur"),
+       ("surat", "uchchhal"),
+       ("surat", "vyara"),
+       ("surat", "mahuva"),
+       ("surat", "mandvi"),
+       ("surat", "nizar"),
+       ("surat", "mangrol"),
+       ("surat", "songadh"),
+       ("surat", "valod"),
+       ("surat", "bardoli"),
+       ("vadodara", "chhota udaipur"),
+       ("vadodara", "nasvadi"),
+       ("valsad", "dharampur"),
+       ("valsad", "pardi"),
+       ("valsad", "umbergaon"),
+       ("navsari", "bansda"),
+       ("navsari", "chikhli")
+
+]
+
+
+#%% Chhatisgarh
+ch : ['bastar', 'koriya', 'surguja', 'kanker', 'dantewada', 'korba', 'jashpur']
+ch_b_sch = [("jashpur", "jashpurnagar"),
+            ("raigarh", "kharsia"),
+            ("bilaspur", "kota"),
+            ("bilaspur", "gaurella no.1"),
+            ("bilaspur", "gaurella no.2"),
+            ("bilaspur", "marwahi"),
+            ("korba", "katghora"),
+            ("durg", "dondi"),
+            ("rajnandgaon", "chowki"),
+            ("rajnandgaon", "mohla"),
+            ("rajnandgaon", "manpur"),
+            ("raipur", "mainpur"),
+            ("raipur", "chhura"),
+            ("raipur", "gariaband"),
+            ("dhamtari", "sihwa(nagri)")]
+
+#%%# Madhya Pradesh
+mp : ['jhabua', 'mandla']
+mp_b_sch = [("shahdol", "pushparajgarh"),
+            ("shahdol", "sohagpur"),
+            ("shahdol", "jaisinghnagar"),
+            ("dhar", "sardarpur"),
+            ("dhar", "dhar"),
+            ("dhar", "manawar"),
+            ("dhar", "kukshi"),
+            ("barwani", "barwani"),
+            ("barwani", "rajpur"),
+            ("barwani", "sendhwa"),
+            ("west nimar", "bhikangaon"),
+            ("west nimar", "maheshwar"),
+            ("east nimar", "khalwa"),
+            ("east nimar", "khaknar"),
+            ("ratlam", "sailana"),
+            ("betul", "betul"),
+            ("betul", "bhainshdehi"),
+            ("seoni", "kurai"),
+            ("seoni", "lakhnadon"),
+            ("balaghat", "baihar"),
+            ("hoshangabad", "kesala"),
+            ("sidhi", "kusmi"),
+            ("sheopur", "karahal"),
+            ("chhindwara", "tamia"),
+            ("chhindwara", "jamai(junnardeo)"),
+            ("chhindwara", "harrai"),
+            ("chhindwara", "bichhua")]
+
+# %% Maharashtra
+mh_b_sch =  [("thane", "palghar"), ("thane", "vasai"),
+             ("thane", "bhiwandi"), ("thane", "murbad"),
+             ("nashik", "dindori"), ("nashik", "igatpuri"),
+     ("nashik", "nashik"), ("nashik", "baglan"), ("dhule", "sakri"),
+     ("dhule", "shirpur"), ("nandurbar", "nandurbar"),
+     ("nandurbar", "shahade"), ("jalgaon", "chopda"), ("jalgaon", "raver"),
+     ("jalgaon", "yawal"), ("pune", "ambegaon"), ("pune", "junnar"),
+     ("nanded", "kinwat"), ("yavatmal", "maregaon"), ("yavatmal", "ralegaon"),
+     ("yavatmal", "kelapur"), ("yavatmal", "ghatanji"),
+     ("gadchiroli", "gadchiroli"), ("gadchiroli", "armori"),
+     ("gadchiroli", "chamorshi"), ("chandrapur", "rajura"),
+     ("ahmadnagar", "akola")]
+# %% Rajasthan
+rj : ['banswara', 'dungarpur']
+rj_b_sch = [("udaipur", "girwa")]
+
+# %% Himachal Pradesh
+hp_d_sch = ['lahul and spiti', 'kinnaur']
+hp : ['lahul and spiti', 'kinnaur']
+hp_b_sch = [('chamba', 'pangi'), ('chamba', 'brahmaur')]

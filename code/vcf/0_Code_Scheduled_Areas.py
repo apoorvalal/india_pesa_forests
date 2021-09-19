@@ -8,7 +8,6 @@ from pathlib import Path
 import seaborn as sns
 import geopandas as gpd
 import contextily as cx
-plt.style.use("seaborn-darkgrid")
 
 # viz
 import matplotlib
@@ -194,8 +193,7 @@ ap2.sch.value_counts()
 sort(block.loc[(block.state == "jk")].named.unique())
 sort(block.loc[(block.state == "jk")].nameb.unique())
 
-# %%
-#%% Jharkhand
+# %% Jharkhand
 jk_d_sch = [
     "ranchi", "lohardaga", "gumla", "purbi singhbhum", "pashchimi singhbhum",
     "sahibganj", "pakaur", "dumka"
@@ -207,7 +205,9 @@ jk_b_sch = [("gumla", "simdega"), ("palamu", "latehar"),
 
 jk2 = sched_labeller(block, 'jk', jk_d_sch, jk_b_sch) #, jk_d_block_samp)
 jk2.sch.value_counts()
-
+# %%
+export_jk = jk2[['state', 'named', 'nameb', 'sch']]
+export_jk.to_csv(root/"tmp/jharkhand_blocks.csv")
 # %% [markdown]
 # ### Gujarat
 #
@@ -410,9 +410,6 @@ hp_b_sch = [('chamba', 'pangi'), ('chamba', 'brahmaur')]
 
 hp2 = sched_labeller(block, 'hp', hp_d_sch, hp_b_sch)
 hp2.sch.value_counts()
-
-# %% [markdown]
-# ## Write file
 
 # %%
 block2 = pd.concat(
