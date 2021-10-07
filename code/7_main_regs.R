@@ -2,19 +2,82 @@
 rm(list=ls())
 library(LalRUtils)
 libreq(tidyverse, data.table, zoo, tictoc, fst, fixest, PanelMatch, patchwork,
-  rio, magrittr, janitor, did, panelView, ggiplot)
+  rio, magrittr, janitor, did, panelView, ggiplot, vtable, RPushbullet)
+
 set.seed(42)
 theme_set(lal_plot_theme())
+
+notif = function(x) pbPost("note", x)
 # %% ####################################################
 dbox_root = '/home/alal/res/india_pesa_forests'
 root = dbox_root
 data = file.path(root, 'inp')
 tmp  = file.path(root, 'tmp')
 
+
 # %%
 tic()
 load(file.path(tmp, "regdata.rds"))
 toc()
+
+# %%
+ ######  ##     ## ##     ## ##     ##    ###    ########  ##    ##
+##    ## ##     ## ###   ### ###   ###   ## ##   ##     ##  ##  ##
+##       ##     ## #### #### #### ####  ##   ##  ##     ##   ####
+ ######  ##     ## ## ### ## ## ### ## ##     ## ########     ##
+      ## ##     ## ##     ## ##     ## ######### ##   ##      ##
+##    ## ##     ## ##     ## ##     ## ##     ## ##    ##     ##
+ ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
+
+# %% summary table - VCF
+sumvars = c('forest_index', 'green_index', 'built_index',  'sch', 'cover_1990')
+summvars=c('notNA(x)', 'mean(x)', 'sd(x)',  'min(x)', 'pctile(x)[25]', 'median(x)', 'pctile(x)[75]', 'max(x)')
+labs = c('Forest cover index (0-100)',
+         'Non-forest green index (0-100)',
+         'Non-green index (0-100)',
+    'Scheduled Status',
+    'Forest Cover in 1990 (Ex-Ante)')
+# %%
+st(vcf_data[, ..sumvars],
+  factor.percent = FALSE, factor.counts = FALSE, summ = summvars,
+  labels = labs, title = "Summary Statistics for primary analysis sample (VCF Data) - full sample",
+  file = file.path(root, 'out/vcf_sumstats_all.tex'), out = 'latex')
+
+st(vcf_data[cover_1990 > quantile(cover_1990, 0.5), ..sumvars],
+  factor.percent = FALSE, factor.counts = FALSE, summ = summvars,
+  labels = labs, title = "Summary Statistics for primary analysis sample (VCF Data) - above median forest cover in 1990",
+  file = file.path(root, 'out/vcf_sumstats_regsamp.tex'), out = 'latex')
+# %% summary table - GFC
+sumvars = c('def_ha', 'sch', 'pref_mean')
+labs = c('Deforested Area (Hectares)',
+         'Scheduled Status', 'Ex-ante forest cover in 2000 (ex-ante)'
+         )
+st(gfc[, ..sumvars], summ = summvars,
+  factor.percent = FALSE, factor.counts = FALSE,
+  labels = labs, title = "Summary Statistics (GFC Data) - full sample",
+  file = file.path(root, 'out/gfc_sumstats_all.tex'), out = 'latex')
+
+st(gfc[pref == 1, ..sumvars], summ = summvars,
+  factor.percent = FALSE, factor.counts = FALSE,
+  labels = labs, title = "Summary Statistics (GFC Data) - above 2 percent forest cover in 2000",
+  file = file.path(root, 'out/gfc_sumstats_regsamp.tex'), out = 'latex')
+
+
+# %% aggregate figure
+ts = vcf_data[, .(avg_tree_cover = mean(forest_index),
+             deforested = mean(ifelse(forest_index < 1, 1, 0))), year]
+gfc_ts = gfc[, .(deforested_area = sum(def_ha)), year]
+f1 = rbind(data.frame(year = 1982:2000, deforested_area = NA), gfc_ts) %>%
+  ggplot(aes(year, deforested_area)) + geom_point() +
+  geom_smooth(se = F) + labs(y = "Total Deforestation (Hectares)", x = "Year",
+    title = "GFC")
+f2 = ggplot(ts, aes(year, avg_tree_cover)) + geom_point() +
+  geom_smooth(se = F) + labs(y = "Average Tree Canopy across all pixels", x = "Year",
+    title = "VCF")
+(ff = f2 / f1)
+
+# %%
+ggsave(file.path(root, "out/agg_ts.pdf"), device = cairo_pdf, width = 6, height = 8)
 
 # %% VCF prep
 if (exists("vcf_data")){
@@ -22,6 +85,9 @@ if (exists("vcf_data")){
   rm(vcf_data)
 }
 vcf[, t := year - 1995]
+(ex_ante_med = quantile(vcf$cover_1990, 0.5))
+above_med = vcf[cover_1990 > ex_ante_med]
+above_med[, never_treated := max(D) == 0, cellid]
 # %%
 ########  ########  ######   ########    ###    ########
 ##     ## ##       ##    ##     ##      ## ##   ##     ##
@@ -47,9 +113,6 @@ ctrl_mean  = round(gfc[pref == 1 & ever_treated == 0 & pesa_exposure == 0, mean(
 ctrl_mean2 = round(gfc[pref == 1 & gfc3 == T & ever_treated == 0 & pesa_exposure == 0, mean(def_ha)], 2)
 # VCF regressions
 # %% above median sample - cutoff in 1990
-(ex_ante_med = quantile(vcf$cover_1990, 0.5))
-above_med = vcf[cover_1990 > ex_ante_med]
-above_med[, never_treated := max(D) == 0, cellid]
 controls_pre1 = above_med[never_treated == 1 & year < first_pesa_exposure, mean(forest_index)]
 # %%
 m0 = feols(forest_index ~ D | cellid + year,  	  data = above_med, cluster = "blk")
@@ -113,7 +176,7 @@ etable(mods,
 
 fitter = function(cutoff){
   dat = gfc[pref_bin >= cutoff]
-  m = feols(def_ha ~ D | village[t] + styear, cluster = ~village, dat)
+  m = feols(def_ha ~ D | village[t] + styear, cluster = ~block, dat)
   tidy(m)[, 2:3]
 }
 # %%
@@ -129,13 +192,13 @@ colnames(cutoff_res)[1:2] = c('beta', 'se')
     ymin = beta - 1.96 * se), alpha = 1, width = 0) +
   geom_hline(yintercept = 0) +
   scale_x_continuous(breaks = 1:10) +
-  labs(title = 'GFC', y = "Effect", x = "",
+  labs(title = 'GFC', y = "Effect (deforested area)", x = "Inclusion Threshold decile of forest cover in 2000 ",
   caption = '') + theme(legend.position = 'none')
 )
 # %% VCF Robustness
 vcf[, pref_bin := ntile(cover_1990, 10)]
 fitter = function(cut) {
-  m = feols(forest_index ~ D | cellid[t] + styear, data = vcf[pref_bin >= cut], cluster = ~cellid)
+  m = feols(forest_index ~ D | cellid[t] + styear, data = vcf[pref_bin >= cut], cluster = ~blk)
   tidy(m)[, 2:3]
 }
 cutmods = map_dfr(1:10, fitter) %>% setDT
@@ -150,12 +213,12 @@ colnames(cutmods)[1:2] = c('beta', 'se')
   scale_x_continuous(breaks = 1:10) +
   scale_colour_brewer(palette = 'Set1') +
   labs(title = 'VCF',
-   y = "Effect", x = "Cutoff Decile",
+   y = "Effect (forest index)", x = "Inclusion Threshold decile of forest cover in 1990",
   caption = '') + theme(legend.position = 'none')
 )
 
 # %%
-frob = (rob_fit_gfc / rob_fit_vcf) + plot_annotation("Estimates by ex-ante forest cover inclusion threshold")
+frob = ( rob_fit_vcf / rob_fit_gfc )
 ggsave(file.path(root, "out/cutoffs_figure.pdf"), device = cairo_pdf, width = 8, height = 8)
 # %%
 
@@ -188,4 +251,3 @@ ff = (estudy_plot(1, "full sample") + labs(y = "", x = "") |
 ggsave(file.path(root, "out/evstudy_vcf.pdf"), ff, width = 12, height = 15,
   device = cairo_pdf)
 # %%
-

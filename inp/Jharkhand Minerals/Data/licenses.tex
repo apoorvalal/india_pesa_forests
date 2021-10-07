@@ -1,0 +1,31 @@
+\begin{table}[htbp]\centering
+%\addtocounter{table}{-1}
+%\renewcommand{\thetable}{\arabic{table}a}
+%\renewcommand{\theHtable}{\thetable B}% To keep hyperref happy
+\scalebox{0.9}{
+\begin{threeparttable}[b]
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Mining licensses in Jharkhand}
+\begin{tabular}{l*{3}{c}}
+\toprule
+                    &\multicolumn{1}{c}{(1)}   &\multicolumn{1}{c}{(2)}   \\
+                    &Block has mine   &Allowed Forest clearance (HA)   \\
+\midrule
+Scheduled Area X Post&     -0.0383   &      0.0367   \\
+                    &    (0.0437)   &    (0.0761)   \\
+\midrule
+Year FE             &         Yes   &         Yes   \\
+Block FE            &         Yes   &         Yes   \\
+Dep. Var Mean       &        .104   &        .104   \\
+\# Blocks           &         210   &         210   \\
+\# Observations     &        1680   &        1680   \\
+\bottomrule
+\end{tabular}
+Standard errors are clustered at the block level.
+\\ \emph{Levels of significance}: *$ p<0.1$ , **$ p<0.05$ , ***$ p<0.01$ 
+%\begin{tablenotes}
+%\item [1] 
+%\end{tablenotes}
+\end{threeparttable}
+}
+\end{table}

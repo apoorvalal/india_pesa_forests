@@ -2,7 +2,7 @@
 rm(list=ls())
 library(LalRUtils)
 libreq(tidyverse, data.table, zoo, tictoc, fst, fixest, PanelMatch, patchwork,
-  rio, magrittr, janitor, did, panelView, ggiplot)
+  rio, magrittr, janitor, did, panelView, ggiplot, vtable)
 set.seed(42)
 theme_set(lal_plot_theme())
 # %% ####################################################
@@ -25,6 +25,7 @@ toc()
 # %% sort
 setorder(vcf_data, cellid, year)
 vcf_data[, blk   := .GRP, by =  .(block, state, year)]
+vcf_data %>% glimpse
 # %% sanity check
 # vcf_data[, sum_index := forest_index + green_index + built_index]
 # vcf_data$sum_index %>% summary
@@ -58,9 +59,11 @@ write_fst(vcf_data, file.path(tmp, 'vcf_reg_ready.fst'))
 tic()
 gfc = readRDS(file.path(root, 'tmp/villages_estimation_sample.rds')) %>% setDT
 toc()
-
+gfc %>% glimpse
 # %%
-kv = c("def_ha", "sch", "D", "village", "state", "year", "styear", "t", "block", "pref", "pref_bin", "pesa_exposure")
+kv = c("def_ha", "sch", "D", "village", "state", "year", "styear",
+  "t", "block", "pref", "pref_bin", "pesa_exposure",
+  "min_dist_to_mine", "pref_mean")
 gfc = gfc[, ..kv]
 # %%
 gfc[, gfc3  := (state == "Chhattisgarh" | state == "Jharkhand" | state == "Maharashtra" | state == "Odisha")]

@@ -27,21 +27,14 @@ import rtree
 from shapely.geometry import shape, mapping, Point, LinearRing
 
 # %%
-home_root = '/home/alal/Dropbox/1_Research/India_Forests'
-yen_root  = '/home/users/apoorval/Research/India_Forests'
+home_root = '/home/alal/Dropbox/1_Research/india_pesa_forests'
 root = Path(home_root)
-
-# %%
 code = root / 'Code'
 data = root / 'Data'
-dataout = '/home/alal/Dropbox/1_Research/india_pesa_forests/inp/'
 spatial = data / 'Spatial'
 
-# %% [markdown]
-# # Mining Atlas
-
 # %%
-# %%time
+%%time
 vil = pd.read_csv(data / 'Intermediate/villages_points_all2.csv')
 vil_g = gpd.GeoDataFrame(vil, geometry=gpd.points_from_xy(vil.lon, vil.lat))
 
@@ -184,7 +177,7 @@ vil2 = pd.concat([vil_g, distances_df], axis = 1)
 vil2 = pd.DataFrame(vil2.drop('geometry', axis = 1))
 
 # %% jupyter={"outputs_hidden": true}
-vil2.to_csv(data/"Intermediate/village_points_all_mines.csv")
+vil2.to_csv(root/"inp/village_points_all_mines.csv")
 
 # %% [markdown]
 # # Intensive margin - count number of mines in buffer
@@ -302,7 +295,7 @@ vil_g.mines_in_10k.describe()
 
 # %%
 # %%time
-pd.DataFrame(vil_g.drop('geometry', axis = 1)).to_csv(data/"Intermediate/village_points_mine_counts.csv")
+pd.DataFrame(vil_g.drop('geometry', axis = 1)).to_csv(root/"inp/village_points_mine_counts.csv")
 
 # %% [markdown]
 # # Map v2 with village points
@@ -324,3 +317,5 @@ ax.set_title("Villages with Mine Proximity \n Number of mines within 10 km radiu
 f.savefig(root/'out/mine_density_map.pdf')
 
 f.savefig(root/'out/mine_density_map.png')
+
+# %%

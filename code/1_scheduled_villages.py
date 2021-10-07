@@ -115,5 +115,5 @@ n_blocks_vill.head()
 # %%time
 type(vv)
 # %%
-vv.to_parquet(root/"tmp/villages_sch_coded.spq")
+vv.to_parquet(root/"inp/spatial/villages_sch_coded.spq")
 # %%

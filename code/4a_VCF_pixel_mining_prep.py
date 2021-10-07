@@ -27,7 +27,6 @@ import geopandas as gpd
 import rtree
 from shapely.geometry import shape, mapping, Point, LinearRing
 # %%
-rice_root = '/home/apoorval/Research/GeoSpatial/India_Forests/'
 dbox_root = '/home/alal/res/india_pesa_forests/'
 root = Path(dbox_root)
 

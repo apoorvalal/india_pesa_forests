@@ -1,6 +1,6 @@
 # %%
 import os
-from numpy import *
+import numpy as np
 import pandas as pd
 
 from pathlib import Path
@@ -29,8 +29,6 @@ sns.set(style="ticks", context="talk")
 # run for jupyter notebook
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = 'all'
-# %%
-# disable nonsensical pandas warning
 pd.options.mode.chained_assignment = None
 #%% Read in data
 root = Path('/home/alal/Dropbox/1_Research/india_pesa_forests/')
@@ -53,6 +51,16 @@ block.info()
 # %%
 states = [a for a in block.STATE_UT.unique() if a is not None]
 sort(states)
+
+
+ ######   #######  ########  ######## ########  ##        #######   ######  ##    ##
+##    ## ##     ## ##     ## ##       ##     ## ##       ##     ## ##    ## ##   ##
+##       ##     ## ##     ## ##       ##     ## ##       ##     ## ##       ##  ##
+##       ##     ## ##     ## ######   ########  ##       ##     ## ##       #####
+##       ##     ## ##     ## ##       ##     ## ##       ##     ## ##       ##  ##
+##    ## ##     ## ##     ## ##       ##     ## ##       ##     ## ##    ## ##   ##
+ ######   #######  ########  ######## ########  ########  #######   ######  ##    ##
+
 
 # %%
 state_abrs = dict([
@@ -420,12 +428,26 @@ block2 = pd.concat(
 %%time
 block2.to_parquet(root/"tmp/BLOCKS_sch_coded.spq")
 
-# %% [markdown]
-# # Plot Treatment
 
+# %%
+##     ##    ###    ########   ######
+###   ###   ## ##   ##     ## ##    ##
+#### ####  ##   ##  ##     ## ##
+## ### ## ##     ## ########   ######
+##     ## ######### ##              ##
+##     ## ##     ## ##        ##    ##
+##     ## ##     ## ##         ######
+
+
+block2 = gpd.read_parquet(root/"tmp/BLOCKS_sch_coded.spq")
+
+# %%
+block2['sched_str'] = np.where(block2.sch == 1, "scheduled", "non-scheduled")
+block2['sched_str'].value_counts()
+# %% # # Plot Treatment
 xmin, ymin, xmax, ymax= block2.total_bounds
 f, ax = plt.subplots(1, figsize=(12,12))
-block2.plot(column='sch', categorical=True, legend=True, alpha = 0.8,
+block2.plot(column='sched_str', categorical=True, legend=True, alpha = 0.8,
             cmap = 'Set1', edgecolor='k',linewidth=0.3,ax=ax)
 state.plot(facecolor = 'none', categorical=True, legend=True,
             edgecolor='y',linewidth=1,ax=ax)
@@ -436,19 +458,22 @@ cx.add_basemap(ax, crs = state.crs.to_string(),
     source = cx.providers.Stamen.TonerLite)
 ax.set_title('Fifth Schedule Areas')
 ax.set_axis_off()
-f.savefig(root/'out/treatmap/scheduled_areas_map.pdf')
+
+# %%
+# f.savefig(root/'out/treatmap/scheduled_areas_map.pdf')
 f.savefig(root/'out/treatmap/scheduled_areas_map.png')
 
 
+
 # %%
-def plot_treatment(statename, colname='sch'):
+def plot_treatment(statename, colname='sched_str'):
     """
     Function to slice geodataframe and plot treatment by state
     """
     df = block2.query('state == "{0}"'.format(statename))
     f, ax = plt.subplots(1, figsize=(9,9))
     df.plot(column=colname, categorical=True, legend=True,
-            cmap = 'viridis', ax=ax)
+            cmap = 'Set2', ax=ax)
     plt.suptitle('scheduled areas \n {0}'.format(statename))
     ax.set_axis_off()
     f.savefig(root/f"out/treatmap/treatmap_{statename}.pdf")

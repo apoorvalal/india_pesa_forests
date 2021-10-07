@@ -7,7 +7,6 @@ import pandas as pd
 # viz
 import matplotlib
 import matplotlib.pyplot as plt
-from plotnine import *
 font = {'family' : 'IBM Plex Sans',
                 'weight' : 'normal',
                 'size'   : 10}
@@ -27,19 +26,21 @@ from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = 'all'
 
 # %%
-rice_root = '/home/apoorval/Research/GeoSpatial/India_Forests/'
 dbox_root = '/home/alal/res/india_pesa_forests/'
 root = Path(dbox_root)
 data = root / 'inp'
 spatial = data/'spatial'
 
 # %% block shapefile stack with treatment
-block_buf = gpd.read_parquet(root/"tmp/BLOCKS_sch_coded.spq").infer_objects()
+block_buf = gpd.read_parquet(root/"inp/spatial/BLOCKS_sch_coded.spq").infer_objects()
 block_buf.info(max_cols = 200)
 
 # %% raster grid fishnet
-%%time
 clipped_rasts = glob.glob(str(root/"tmp/clipped_rasters/*.tif"))
+clipped_rasts[:5]
+
+# %%
+%%time
 p = clipped_rasts[0]
 rast   = gr.from_file(p)
 fishnet = rast.to_geopandas()
