@@ -21,6 +21,7 @@ load(file.path(tmp, "regdata.rds"))
 toc()
 
 # %%
+vcf_data %>% glimpse
  ######  ##     ## ##     ## ##     ##    ###    ########  ##    ##
 ##    ## ##     ## ###   ### ###   ###   ## ##   ##     ##  ##  ##
 ##       ##     ## #### #### #### ####  ##   ##  ##     ##   ####
@@ -28,6 +29,26 @@ toc()
       ## ##     ## ##     ## ##     ## ######### ##   ##      ##
 ##    ## ##     ## ##     ## ##     ## ##     ## ##    ##     ##
  ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
+
+# %% treatment timing figure
+state_status = vcf_data[year>=1990][,
+  .(out = 1, treat = max(D)), .(state, year)]
+
+f0 = panelView(out ~ treat,
+  data = as.data.frame(state_status),
+  index = c("state","year"),
+  xlab = "Year", ylab = "State",
+  main = "",
+  by.timing = TRUE, legendOff = TRUE,
+  background = "white")
+(f0 = f0 +
+  lal_plot_theme(textangle = 90) + theme(legend.pos = "None") + labs(x = "", y = "") +
+  geom_vline(xintercept = 11.5, color = 'red', size = 1.2) +
+  annotate("text", x = 8, y = 1, label = "GFC Coverage Begins", color = 'red', size = 5.0)
+)
+# %%
+ggsave(file.path(root, "out/panelview_vcf_ann.pdf"), height = 6, width = 12, device = cairo_pdf)
+
 
 # %% summary table - VCF
 sumvars = c('forest_index', 'green_index', 'built_index',  'sch', 'cover_1990')

@@ -3,14 +3,22 @@ rm(list=ls())
 library(LalRUtils)
 libreq(tidyverse,magrittr, data.table, rio, tictoc, fst)
 ####################################################
-#%% reshape - run once
+#%%
 root = "/home/alal/Dropbox/1_Research/india_pesa_forests"
 setwd(root)
 
 # %%
 widedat = fread(file.path(root,'inp/village_points_all_mines.csv'))
 widedat = lower_varnames(widedat) %>% setDT
-#%%
+#%% mining distances
+widedat2 = fread(file.path(root,'inp/village_points_mine_counts.csv'))
+widedat2 = lower_varnames(widedat2) %>% setDT
+
+# %% merge in mine distances
+widedat = merge(widedat,
+  widedat2[, .(v1, code_2011, mines_in_5k, mines_in_10k, mines_in_50k)],
+  by = c('v1', 'code_2011'))
+# %%
 mine_distances = colnames(widedat) %>% str_subset("min_dist_*.")
 (defors = colnames(widedat) %>% str_subset('deforest') %>% sort)
 keepvars = c(
@@ -24,7 +32,7 @@ keepvars = c(
 )
 dat = widedat[, ..keepvars]
 dat[, code_2011 := as.numeric(code_2011)]
-
+dat %>% glimpse
 # %% dedupe - throws out edge cases
 dat_dedup = dat[, .SD[1],
   by = .(code_2011, state_ut, district, sub_dist, name)]
@@ -32,7 +40,8 @@ dat_dedup = dat[, .SD[1],
 #%% # wide to long reshape for deforestation count
 tic()
 dat_long = dat_dedup %>%
-  tidyr::gather(deforestation, def_cells, deforest_0:deforest_9) %>% setDT
+  tidyr::gather(deforestation, def_cells, deforest_0:deforest_9) %>%  # column range
+  setDT
 toc()
 
 #%% # break deforestation column into year + get rid of prefix
@@ -106,12 +115,15 @@ dat_long_clean[, pref_bin := ntile(pref_mean, 10)]
 dat_long_clean[, pref := fifelse(pref_mean >= 2, 1, 0)]
 dat_long_clean[,   yr := as.factor(year)]
 
-# %%
-# tic()
-# write_fst(dat_long_clean, '../tmp/villages_estimation_sample.fst') # write file for future runs
-# toc()
 
+# %% file is too big
+# tic()
+# write_fst(dat_long_clean, file.path(root, 'tmp/villages_estimation_sample.fst')) # write file for future runs
+# toc()
+#
 # %%
 tic()
-saveRDS(dat_long_clean, '../tmp/villages_estimation_sample.rds') # write file for future runs
+saveRDS(dat_long_clean, file.path(root,'tmp/villages_estimation_sample.rds')) # write file for future runs
 toc()
+
+# %%

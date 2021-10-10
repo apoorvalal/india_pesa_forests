@@ -26,9 +26,6 @@ toc()
 setorder(vcf_data, cellid, year)
 vcf_data[, blk   := .GRP, by =  .(block, state, year)]
 vcf_data %>% glimpse
-# %% sanity check
-# vcf_data[, sum_index := forest_index + green_index + built_index]
-# vcf_data$sum_index %>% summary
 # %% # construct ex-ante cover using 5 year window preceding treatment
 slice = vcf_data[,
   .(cellid, row, col,

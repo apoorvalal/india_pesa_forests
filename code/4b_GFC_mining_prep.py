@@ -29,13 +29,9 @@ from shapely.geometry import shape, mapping, Point, LinearRing
 # %%
 home_root = '/home/alal/Dropbox/1_Research/india_pesa_forests'
 root = Path(home_root)
-code = root / 'Code'
-data = root / 'Data'
-spatial = data / 'Spatial'
-
 # %%
 %%time
-vil = pd.read_csv(data / 'Intermediate/villages_points_all2.csv')
+vil = pd.read_csv(root / 'Intermediate/villages_points_all2.csv')
 vil_g = gpd.GeoDataFrame(vil, geometry=gpd.points_from_xy(vil.lon, vil.lat))
 
 # %%
@@ -315,7 +311,6 @@ ax.set_title("Villages with Mine Proximity \n Number of mines within 10 km radiu
 
 # %%
 f.savefig(root/'out/mine_density_map.pdf')
-
 f.savefig(root/'out/mine_density_map.png')
 
 # %%
