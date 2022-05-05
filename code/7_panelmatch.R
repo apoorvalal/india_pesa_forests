@@ -19,7 +19,7 @@ notif = function(x) pbPost("note", x)
 # %% ####################################################
 dbox_root = '/home/alal/res/india_pesa_forests'
 sher_root = "/home/users/apoorval/aa_scratch/forests_analysis"
-root = sher_root
+root = dbox_root
 tmp  = file.path(root, "tmp")
 # %%
 tic()
@@ -49,8 +49,6 @@ above_med[, never_treated := max(D) == 0, cellid]
 above_med[, stf := as.factor(state)]
 pm_data = as.data.frame(above_med)
 # %%
-
-
 tic()
 match_ps_vcf <- PanelMatch(lag = 4, time.id = "year", unit.id = "cellid",
                      treatment = "D", refinement.method = "ps.weight",
@@ -66,8 +64,7 @@ toc()
 notif("matching done")
 
 # %%
-ps_results_vcf <- PanelEstimate(sets = match_ps_vcf, data = pm_data,
-  se.method = "conditional")
+ps_results_vcf <- PanelEstimate(sets = match_ps_vcf, data = pm_data, se.method = "conditional")
 
 # %%
 toc()
@@ -88,27 +85,25 @@ save(match_ps_vcf, ps_results_vcf, bal, file = file.path(root, "tmp/panelmatch_v
       ## ##     ## ##     ## ##     ## ######### ##   ##      ##
 ##    ## ##     ## ##     ## ##     ## ##     ## ##    ##     ##
  ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
-
-# %%
-dbox_root = '/home/alal/res/india_pesa_forests'
-root = dbox_root
-tmp  = file.path(root, "tmp")
-
 # %%
 tic()
 load(file.path(root, "tmp/panelmatch_vcf2.RData"))
 toc()
-ls()
+ls() |> print()
+
 # %% balance fig
-baltab = data.frame(t = -4:0, bal)
+baltab = data.frame(t = -4:-1, forest_index = bal[-nrow(bal), ])
+
 (
   balfig = ggplot(baltab, aes(t, forest_index)) + geom_point(size = 2) +
   geom_hline(yintercept = 0, alpha = 0.8) +
-  geom_hline(yintercept = c(-.25, .25), color = 'red', size = 4, linetype = 'dashed') +
+  ylim(c(-0.5, 3.2)) +
+  geom_hline(yintercept = c(-.25, .25), color = 'red', size = 0.5, linetype = 'dashed') +
   labs(y = "Standardised Difference in Lagged Forest Index",
     x = "Time relative to treatment",
-    caption = "Red lines indicate imbalance threshold")
+    caption = "Red lines indicate imbalance threshold of 0.25 σ")
 )
+
 ggsave(file.path(root, "out/panelmatch_vcf_balfig.pdf"), balfig, device = cairo_pdf)
 # %% event study fig
 vcf_res = data.frame(
@@ -120,7 +115,12 @@ vcf_res = data.frame(
   geom_point() +
   geom_pointrange(aes(ymin = est - 1.96*se, ymax = est + 1.96*se), alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = 'dotted') +
-  labs(y = "Effect on forest index", x = "time")
+  scale_y_continuous(position = "right", limits = c(-.5, 3.2)) +
+  labs(y = "Effect on forest index", x = "time relative to treatment")
 )
 ggsave(file.path(root, "out/panelmatch_vcf.pdf"), f1, device = cairo_pdf)
 # %%
+
+
+
+balfig | f1

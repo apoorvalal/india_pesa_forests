@@ -1,3 +1,4 @@
+*.gpkg
 *.csv
 *.csv.tar.gz
 *.dta
