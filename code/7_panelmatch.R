@@ -26,6 +26,8 @@ tic()
 load(file.path(tmp, "regdata.rds"))
 toc()
 
+vcf_data$cellid %>% nunique
+
 # %% VCF prep
 if (exists("vcf_data")){
   vcf = vcf_data[year>=1995]
@@ -89,7 +91,7 @@ save(match_ps_vcf, ps_results_vcf, bal, file = file.path(root, "tmp/panelmatch_v
 tic()
 load(file.path(root, "tmp/panelmatch_vcf2.RData"))
 toc()
-ls() |> print()
+
 
 # %% balance fig
 baltab = data.frame(t = -4:-1, forest_index = bal[-nrow(bal), ])
@@ -103,8 +105,8 @@ baltab = data.frame(t = -4:-1, forest_index = bal[-nrow(bal), ])
     x = "Time relative to treatment",
     caption = "Red lines indicate imbalance threshold of 0.25 σ")
 )
-
 ggsave(file.path(root, "out/panelmatch_vcf_balfig.pdf"), balfig, device = cairo_pdf)
+
 # %% event study fig
 vcf_res = data.frame(
   t =ps_results_vcf[['lead']],
@@ -120,7 +122,7 @@ vcf_res = data.frame(
 )
 ggsave(file.path(root, "out/panelmatch_vcf.pdf"), f1, device = cairo_pdf)
 # %%
+ff = balfig | f1
 
-
-
-balfig | f1
+ggsave(file.path(root, "out/panelmatch_wide.pdf"), ff, device = cairo_pdf,
+  width = 12, height = 5)
