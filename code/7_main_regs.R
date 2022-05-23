@@ -1,8 +1,8 @@
 # %% ####################################################
 rm(list=ls())
 library(LalRUtils)
-libreq(tidyverse, data.table, zoo, tictoc, fst, fixest, PanelMatch, patchwork,
-  rio, magrittr, janitor, did, panelView, ggiplot, vtable, RPushbullet)
+libreq(data.table, zoo, tictoc, fixest, PanelMatch, patchwork,
+  rio, magrittr, janitor, did, panelView, ggiplot, RPushbullet)
 
 set.seed(42)
 theme_set(lal_plot_theme())
@@ -14,14 +14,14 @@ root = dbox_root
 data = file.path(root, 'inp')
 tmp  = file.path(root, 'tmp')
 
-
-# %%
 tic()
 load(file.path(tmp, "regdata.rds"))
 toc()
 
 # %%
-vcf_data %>% glimpse
+vcf_data %>% str
+
+# %%
  ######  ##     ## ##     ## ##     ##    ###    ########  ##    ##
 ##    ## ##     ## ###   ### ###   ###   ## ##   ##     ##  ##  ##
 ##       ##     ## #### #### #### ####  ##   ##  ##     ##   ####
@@ -31,8 +31,7 @@ vcf_data %>% glimpse
  ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
 
 # %% treatment timing figure
-state_status = vcf_data[year>=1990][,
-  .(out = 1, treat = max(D)), .(state, year)]
+state_status = vcf_data[year>=1990][, .(out = 1, treat = max(D)), .(state, year)]
 
 f0 = panelView(out ~ treat,
   data = as.data.frame(state_status),
@@ -127,6 +126,7 @@ m01 = feols(def_ha ~ D | village + styear, cluster = "block",
 # with effective sample for cols 3, 4
 m003 = feols(def_ha ~ D | village + village[t] + styear, cluster = "block",
   gfc[gfc3 == TRUE & pref == 1])
+#
 
 # %% control means for table
 gfc[, ever_treated := max(D), .(village)]
