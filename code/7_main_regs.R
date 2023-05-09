@@ -1,13 +1,15 @@
 # %% ####################################################
-rm(list=ls())
+rm(list = ls())
 library(LalRUtils)
-libreq(data.table, zoo, tictoc, fixest, PanelMatch, patchwork,
-  rio, magrittr, janitor, did, panelView, ggiplot, RPushbullet)
+libreq(
+  data.table, zoo, tictoc, fixest, PanelMatch, patchwork,
+  rio, magrittr, janitor, did, panelView, ggiplot, RPushbullet
+)
 
 set.seed(42)
 theme_set(lal_plot_theme())
 
-notif = function(x) pbPost("note", x)
+notif = \(x) pbPost("note", x)
 # %% ####################################################
 dbox_root = '/home/alal/res/india_pesa_forests'
 root = dbox_root
@@ -19,9 +21,8 @@ load(file.path(tmp, "regdata.rds"))
 toc()
 
 # %%
-vcf_data %>% str
 
-# %%
+
  ######  ##     ## ##     ## ##     ##    ###    ########  ##    ##
 ##    ## ##     ## ###   ### ###   ###   ## ##   ##     ##  ##  ##
 ##       ##     ## #### #### #### ####  ##   ##  ##     ##   ####
@@ -31,9 +32,11 @@ vcf_data %>% str
  ######   #######  ##     ## ##     ## ##     ## ##     ##    ##
 
 # %% treatment timing figure
-state_status = vcf_data[year>=1990][, .(out = 1, treat = max(D)), .(state, year)]
+state_status = vcf_data[year >= 1990][ ,
+  .(out = 1, treat = max(D)), .(state, year)
+]
 
-f0 = panelView(out ~ treat,
+f0 = panelview(out ~ treat,
   data = as.data.frame(state_status),
   index = c("state","year"),
   xlab = "Year", ylab = "State",
@@ -50,13 +53,15 @@ ggsave(file.path(root, "out/panelview_vcf_ann.pdf"), height = 6, width = 12, dev
 
 
 # %% summary table - VCF
-sumvars = c('forest_index', 'green_index', 'built_index',  'sch', 'cover_1990')
-summvars=c('notNA(x)', 'mean(x)', 'sd(x)',  'min(x)', 'pctile(x)[25]', 'median(x)', 'pctile(x)[75]', 'max(x)')
-labs = c('Forest cover index (0-100)',
-         'Non-forest green index (0-100)',
-         'Non-green index (0-100)',
-    'Scheduled Status',
-    'Forest Cover in 1990 (Ex-Ante)')
+sumvars = c('forest_index', 'green_index', 'built_index', 'sch', 'cover_1990')
+summvars = c('notNA(x)', 'mean(x)', 'sd(x)', 'min(x)', 'pctile(x)[25]', 'median(x)', 'pctile(x)[75]', 'max(x)')
+labs = c(
+  'Forest cover index (0-100)',
+  'Non-forest green index (0-100)',
+  'Non-green index (0-100)',
+  'Scheduled Status',
+  'Forest Cover in 1990 (Ex-Ante)'
+)
 # %%
 st(vcf_data[, ..sumvars],
   factor.percent = FALSE, factor.counts = FALSE, summ = summvars,
@@ -67,6 +72,7 @@ st(vcf_data[cover_1990 > quantile(cover_1990, 0.5), ..sumvars],
   factor.percent = FALSE, factor.counts = FALSE, summ = summvars,
   labels = labs, title = "Summary Statistics for primary analysis sample (VCF Data) - above median forest cover in 1990",
   file = file.path(root, 'out/vcf_sumstats_regsamp.tex'), out = 'latex')
+
 # %% summary table - GFC
 sumvars = c('def_ha', 'sch', 'pref_mean')
 labs = c('Deforested Area (Hectares)',
@@ -99,16 +105,7 @@ f2 = ggplot(ts, aes(year, avg_tree_cover)) + geom_point() +
 # %%
 ggsave(file.path(root, "out/agg_ts.pdf"), device = cairo_pdf, width = 6, height = 8)
 
-# %% VCF prep
-if (exists("vcf_data")){
-  vcf = vcf_data[year>=1995]
-  rm(vcf_data)
-}
-vcf[, t := year - 1995]
-(ex_ante_med = quantile(vcf$cover_1990, 0.5))
-above_med = vcf[cover_1990 > ex_ante_med]
-above_med[, never_treated := max(D) == 0, cellid]
-# %%
+
 ########  ########  ######   ########    ###    ########
 ##     ## ##       ##    ##     ##      ## ##   ##     ##
 ##     ## ##       ##           ##     ##   ##  ##     ##
@@ -116,6 +113,17 @@ above_med[, never_treated := max(D) == 0, cellid]
 ##   ##   ##       ##    ##     ##    ######### ##     ##
 ##    ##  ##       ##    ##     ##    ##     ## ##     ##
 ##     ## ########  ######      ##    ##     ## ########
+# %% VCF prep
+if (exists("vcf_data")) {
+  vcf = vcf_data[year >= 1995]
+  rm(vcf_data)
+}
+vcf[, t := year - 1995]
+(ex_ante_med = quantile(vcf$cover_1990, 0.5))
+above_med = vcf[cover_1990 > ex_ante_med]
+above_med[, never_treated := max(D) == 0, cellid]
+
+above_med %>% head %>% View
 
 # %% GFC regressions
 # 2wFE
@@ -126,19 +134,22 @@ m01 = feols(def_ha ~ D | village + styear, cluster = "block",
 # with effective sample for cols 3, 4
 m003 = feols(def_ha ~ D | village + village[t] + styear, cluster = "block",
   gfc[gfc3 == TRUE & pref == 1])
-#
 
 # %% control means for table
 gfc[, ever_treated := max(D), .(village)]
 ctrl_mean  = round(gfc[pref == 1 & ever_treated == 0 & pesa_exposure == 0, mean(def_ha)], 2)
 ctrl_mean2 = round(gfc[pref == 1 & gfc3 == T & ever_treated == 0 & pesa_exposure == 0, mean(def_ha)], 2)
+treat_mean  = round(gfc[pref == 1 & ever_treated == 1 & pesa_exposure == 0, mean(def_ha)], 2)
+treat_mean2 = round(gfc[pref == 1 & gfc3 == T & ever_treated == 1 & pesa_exposure == 0, mean(def_ha)], 2)
 # VCF regressions
 # %% above median sample - cutoff in 1990
 controls_pre1 = above_med[never_treated == 1 & year < first_pesa_exposure, mean(forest_index)]
+treat_pre1    = above_med[never_treated == 0 & year < first_pesa_exposure, mean(forest_index)]
 # %%
 m0 = feols(forest_index ~ D | cellid + year,  	  data = above_med, cluster = "blk")
 m1 = feols(forest_index ~ D | cellid + styear,    data = above_med, cluster = "blk")
 m3 = feols(forest_index ~ D | cellid[t] + styear, data = above_med, cluster = "blk")
+
 # %% export
 treatmap =c(
         # GFC
@@ -170,19 +181,20 @@ etable(mods, fixef_sizes = T, fixef_sizes.simplify = F,
 etable(mods,
   style.tex = style.tex(main = "base", depvar.title = "", model.title = "",
     yesNo = c("$\\checkmark$", "")),
-  signifCode = NA,
+  signif.code = NA,
   fixef_sizes = T, fixef_sizes.simplify = F,
   fitstat = ~ n, tex = TRUE,
   dict = treatmap,
   label = lab,
   title = glue::glue("{desc} regression estimates (ex-ante median cutoff)"),
   notes = "First three columns report report estimates from the VCF dataset, where the dependent variable is is a forest cover index; hence, a positive (negative) coefficient implies an increase (decrease) in forest cover. The next three columns estimates from the GFC dataset, where the dependent variable is annual deforested area; hence, a negative (positive) coefficient implies an increase (decrease) in forest cover. Columns 5 and 6 restrict the sample to four states: Chhattisgarh, Jharkhand, Maharashtra, and Orissa, which switch to PESA status during the GFC panel (2001- 2017).",
-    extraline=list(
-      "Dep Var Mean"= c(rep(controls_pre1, 3), ctrl_mean, ctrl_mean2, ctrl_mean2),
+    extralines=list(
+      "Mean Y (Non-Sch)"= c(rep(controls_pre1, 3), ctrl_mean, ctrl_mean2, ctrl_mean2),
+      "Mean Y (Sch )"   = c(rep(treat_pre1, 3),    treat_mean, treat_mean2, treat_mean2),
       "Dataset"     = c(rep("VCF", 3), rep("GFC", 3)),
       "Timespan"    = c(rep("1995-2017", 3), rep("2001-2017", 3))
     ),
-  file = file.path(root, glue::glue("out/{fn}_block.tex")), replace = TRUE)
+  file = file.path(root, glue::glue("out/{fn}_block_new.tex")), replace = TRUE)
 
 # %% robustness to cutoffs - VCF
  ######  ##     ## ########  #######  ######## ########  ######

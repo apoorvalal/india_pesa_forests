@@ -2,7 +2,8 @@
 import rasterio
 from rasterio.merge import merge
 from rasterio.plot import show
-import glob, os
+import glob
+import os
 from pathlib import Path
 # run for jupyter notebook
 from IPython.core.interactiveshell import InteractiveShell
@@ -10,7 +11,7 @@ InteractiveShell.ast_node_interactivity = 'all'
 
 
 # %% Collapsed="false"
-#%% Read in data
+# %% Read in data
 dbox_root = '/home/alal/Dropbox/1_Research/india_pesa_forests/'
 root = Path(dbox_root)
 data = root / 'inp/GFC_Rasters'
@@ -45,8 +46,8 @@ out_meta = src.meta.copy()
 out_meta.update({"driver": "GTiff", "height": mosaic.shape[1],
                  "width": mosaic.shape[2],
                  "transform": out_trans}
-)
-out_meta.update(compress = 'lzw')
+                )
+out_meta.update(compress='lzw')
 
 out_fp = '_Hansen_GFC_lossyear_all.tif'
 
@@ -77,9 +78,9 @@ out_meta = src.meta.copy()
 # Update the metadata
 out_meta.update({"driver": "GTiff", "height": mosaic.shape[1],
                  "width": mosaic.shape[2],
-    "transform": out_trans}
-)
-out_meta.update(compress = 'lzw')
+                 "transform": out_trans}
+                )
+out_meta.update(compress='lzw')
 
 out_fp = '_Hansen_GFC_treecover2000_all.tif'
 with rasterio.open(out_fp, "w", **out_meta) as dest:

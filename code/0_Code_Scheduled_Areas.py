@@ -1,4 +1,5 @@
 # %%
+from IPython.core.interactiveshell import InteractiveShell
 import os
 import numpy as np
 import pandas as pd
@@ -14,9 +15,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from plotnine import *
-font = {'family' : 'IBM Plex Sans',
-                'weight' : 'normal',
-                'size'   : 10}
+font = {'family': 'IBM Plex Sans',
+        'weight': 'normal',
+        'size': 10}
 plt.rc('font', **font)
 plt.rcParams['figure.figsize'] = (10, 10)
 matplotlib.style.use(['seaborn-talk', 'seaborn-ticks', 'seaborn-whitegrid'])
@@ -27,17 +28,16 @@ matplotlib.style.use(['seaborn-talk', 'seaborn-ticks', 'seaborn-whitegrid'])
 sns.set(style="ticks", context="talk")
 # # %matplotlib inline
 # run for jupyter notebook
-from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = 'all'
 pd.options.mode.chained_assignment = None
-#%% Read in data
+# %% Read in data
 root = Path('/home/alal/Dropbox/1_Research/india_pesa_forests/')
 code = root / 'Code'
 data = root / 'inp'
 %cd $data
 # %%
 census_2001 = data/"india_spatial_master/data/CENSUS/India_Census_Villages_2001"
-adm_2001    = data/"india_spatial_master/data/2001_admin/"
+adm_2001 = data/"india_spatial_master/data/2001_admin/"
 %ls $adm_2001
 
 # %%
@@ -52,14 +52,13 @@ block.info()
 states = [a for a in block.STATE_UT.unique() if a is not None]
 sort(states)
 
-
- ######   #######  ########  ######## ########  ##        #######   ######  ##    ##
+######   #######  ########  ######## ########  ##        #######   ######  ##    ##
 ##    ## ##     ## ##     ## ##       ##     ## ##       ##     ## ##    ## ##   ##
 ##       ##     ## ##     ## ##       ##     ## ##       ##     ## ##       ##  ##
 ##       ##     ## ##     ## ######   ########  ##       ##     ## ##       #####
 ##       ##     ## ##     ## ##       ##     ## ##       ##     ## ##       ##  ##
 ##    ## ##     ## ##     ## ##       ##     ## ##       ##     ## ##    ## ##   ##
- ######   #######  ########  ######## ########  ########  #######   ######  ##    ##
+######   #######  ########  ######## ########  ########  #######   ######  ##    ##
 
 
 # %%
@@ -83,7 +82,7 @@ block['nameb'] = block.NAME.str.lower()
 
 # %%
 block['state'] = block.STATE_UT
-block["state"].replace(state_abrs, inplace = True)
+block["state"].replace(state_abrs, inplace=True)
 
 # %%
 block['state'].unique()
@@ -100,14 +99,15 @@ def sched_labeller(d, st, d_sch, b_sch, d_block_samp=None):
     function to label blocks as scheduled and block_samp based on list
     of district names and a dict
     """
-    df = d.loc[d.state == st] # subset to state
+    df = d.loc[d.state == st]  # subset to state
     ##############################
     # district level classifications
     ##############################
     # slower but noisier prep
     for dist in d_sch:
         df.loc[df.named == dist, 'sch'] = 1
-        print(f'Changed {df.loc[df.named == dist].shape[0]} obs for district {dist}')
+        print(
+            f'Changed {df.loc[df.named == dist].shape[0]} obs for district {dist}')
 
     ##############################
     # Block sample - legacy
@@ -118,16 +118,17 @@ def sched_labeller(d, st, d_sch, b_sch, d_block_samp=None):
     # district - block sample
     ##############################
     districts = df.named.unique()
-    blocks    = df.nameb.unique()
+    blocks = df.nameb.unique()
     # iterate through dict of (district, block) pairs and flag sch = 1 for each
     for i in b_sch:
-        d, b = i[0], i[1] # district, block pair
+        d, b = i[0], i[1]  # district, block pair
         error_pairs = []
         if not (d in districts and b in blocks):
             error_pairs.append(i)
         df.loc[(df.named == d) & (df.nameb == b),  'sch'] = 1
         # noisy
-        print(f'Changed {df.loc[(df.named == d) & (df.nameb == b)].shape[0]} obs for district = {d}, block = {b}')
+        print(
+            f'Changed {df.loc[(df.named == d) & (df.nameb == b)].shape[0]} obs for district = {d}, block = {b}')
     print('---------- MISSING PAIRS ----------')
     print(error_pairs)
     print('------------------------------------')
@@ -151,23 +152,23 @@ block.loc[(block.state == "or") & (block.nameb == 'surada')].named.unique()
 or_d_sch = ["mayurbhanj", "sundargarh", "koraput"]
 
 or_b_sch = [("sambalpur", "kochinda"),
-                 ("kendujhar", "kendujhargarh"), # found
-                 ("kendujhar", "telkoi"),
-                 ("kendujhar", "champua"),
-                 ("kendujhar", "banspal"),
-                 ("baudh", "kantamal"),
-                 ("kandhamal", "g.udayagiri"),  # fixed
-                 ("kandhamal", "baliguda"),
-                 ("kalahandi", "thuamul-rampur"), # fixed
-                 ("kalahandi", "lanjigarh"),
-                 ("baleshwar", "nilagiri"),
-                 ("gajapati", "r.udaygiri"), # fixed
-                 ("gajapati", "guma"),
-                 ("gajapati", "rayagada"),
-                 ("gajapati", "parlakhemundi (gosani)"), # fixed
-                 ("ganjam", "surada")]
+            ("kendujhar", "kendujhargarh"),  # found
+            ("kendujhar", "telkoi"),
+            ("kendujhar", "champua"),
+            ("kendujhar", "banspal"),
+            ("baudh", "kantamal"),
+            ("kandhamal", "g.udayagiri"),  # fixed
+            ("kandhamal", "baliguda"),
+            ("kalahandi", "thuamul-rampur"),  # fixed
+            ("kalahandi", "lanjigarh"),
+            ("baleshwar", "nilagiri"),
+            ("gajapati", "r.udaygiri"),  # fixed
+            ("gajapati", "guma"),
+            ("gajapati", "rayagada"),
+            ("gajapati", "parlakhemundi (gosani)"),  # fixed
+            ("ganjam", "surada")]
 
-or2 = sched_labeller(block, 'or', or_d_sch, or_b_sch) #, or_d_block_samp)
+or2 = sched_labeller(block, 'or', or_d_sch, or_b_sch)  # , or_d_block_samp)
 or2.sch.value_counts()
 
 # %% [markdown]
@@ -182,15 +183,15 @@ sort(block.loc[(block.state == "ap")].named.unique())
 sort(block.loc[(block.state == "ap")].nameb.unique())
 
 # %%
-#%% Andhra
+# %% Andhra
 ap_d_sch = ["visakhapatnam", "east godavari"]
 ap_b_sch = [("adilabad", "adilabad"), ("adilabad", "boath"),
-                 ("adilabad", "asifabad"), ("adilabad", "sirpur"),
-                 ("adilabad", "luxettipet"), ("warangal", "mulug"),
-                 ("warangal", "narsampet"), ("khammam", "palwancha"),
-                 ("khammam", "yellandu")]
+            ("adilabad", "asifabad"), ("adilabad", "sirpur"),
+            ("adilabad", "luxettipet"), ("warangal", "mulug"),
+            ("warangal", "narsampet"), ("khammam", "palwancha"),
+            ("khammam", "yellandu")]
 
-ap2 = sched_labeller(block, 'ap', ap_d_sch, ap_b_sch) # ap_d_block_samp)
+ap2 = sched_labeller(block, 'ap', ap_d_sch, ap_b_sch)  # ap_d_block_samp)
 ap2.sch.value_counts()
 
 # %% [markdown]
@@ -207,11 +208,11 @@ jk_d_sch = [
     "sahibganj", "pakaur", "dumka"
 ]
 jk_b_sch = [("gumla", "simdega"), ("palamu", "latehar"),
-                 ("palamu", "satbarwa"), ("godda", "sundarpahari"),
-                 ("godda", "boarijor"), ("dumka", "jamtara"),
-                 ("garhwa", "bhandaria")]
+            ("palamu", "satbarwa"), ("godda", "sundarpahari"),
+            ("godda", "boarijor"), ("dumka", "jamtara"),
+            ("garhwa", "bhandaria")]
 
-jk2 = sched_labeller(block, 'jk', jk_d_sch, jk_b_sch) #, jk_d_block_samp)
+jk2 = sched_labeller(block, 'jk', jk_d_sch, jk_b_sch)  # , jk_d_block_samp)
 jk2.sch.value_counts()
 # %%
 export_jk = jk2[['state', 'named', 'nameb', 'sch']]
@@ -227,38 +228,38 @@ sort(block.loc[(block.state == "gu")].named.unique())
 sort(block.loc[(block.state == "gu")].nameb.unique())
 
 # %%
-#%%# Gujarat
+# %%# Gujarat
 gu_d_sch = []
 
 gu_b_sch = [
-       ("the dangs", "the dangs"),  # fixed, sep the dangs
-       ("bharuch", "jhagadia"),
-       ("bharuch", "valia"),
-       ("dohad", "devgadbaria"),
-       ("dohad", "dohad"),
-       ("dohad", "jhalod"),
-       ("dohad", "limkheda"),
+    ("the dangs", "the dangs"),  # fixed, sep the dangs
+    ("bharuch", "jhagadia"),
+    ("bharuch", "valia"),
     ("dohad", "devgadbaria"),
-       ("narmada", "dediapada"),
-       ("narmada", "nandod"),
-       ("narmada", "sagbara"),
-       ("panch mahals", "santrampur"),
-       ("surat", "uchchhal"),
-       ("surat", "vyara"),
-       ("surat", "mahuva"),
-       ("surat", "mandvi"),
-       ("surat", "nizar"),
-       ("surat", "mangrol"),
-       ("surat", "songadh"),
-       ("surat", "valod"),
-       ("surat", "bardoli"),
-       ("vadodara", "chhota udaipur"),
-       ("vadodara", "nasvadi"),
-       ("valsad", "dharampur"),
-       ("valsad", "pardi"),
-       ("valsad", "umbergaon"),
-       ("navsari", "bansda"),
-       ("navsari", "chikhli")
+    ("dohad", "dohad"),
+    ("dohad", "jhalod"),
+    ("dohad", "limkheda"),
+    ("dohad", "devgadbaria"),
+    ("narmada", "dediapada"),
+    ("narmada", "nandod"),
+    ("narmada", "sagbara"),
+    ("panch mahals", "santrampur"),
+    ("surat", "uchchhal"),
+    ("surat", "vyara"),
+    ("surat", "mahuva"),
+    ("surat", "mandvi"),
+    ("surat", "nizar"),
+    ("surat", "mangrol"),
+    ("surat", "songadh"),
+    ("surat", "valod"),
+    ("surat", "bardoli"),
+    ("vadodara", "chhota udaipur"),
+    ("vadodara", "nasvadi"),
+    ("valsad", "dharampur"),
+    ("valsad", "pardi"),
+    ("valsad", "umbergaon"),
+    ("navsari", "bansda"),
+    ("navsari", "chikhli")
 
 ]
 
@@ -272,21 +273,22 @@ gu2.sch.value_counts()
 # https://web.archive.org/web/20170818101527/http://tribal.nic.in/Content/ScheduledAreasinMaharashtraSSAreas.aspx
 
 # %%
-#%%# Maharashtra
+# %%# Maharashtra
 mh_d_sch = []
 
-mh_b_sch =  [("thane", "palghar"), ("thane", "vasai"),
-             ("thane", "bhiwandi"), ("thane", "murbad"),
-             ("nashik", "dindori"), ("nashik", "igatpuri"),
-     ("nashik", "nashik"), ("nashik", "baglan"), ("dhule", "sakri"),
-     ("dhule", "shirpur"), ("nandurbar", "nandurbar"),
-     ("nandurbar", "shahade"), ("jalgaon", "chopda"), ("jalgaon", "raver"),
-     ("jalgaon", "yawal"), ("pune", "ambegaon"), ("pune", "junnar"),
-     ("nanded", "kinwat"), ("yavatmal", "maregaon"), ("yavatmal", "ralegaon"),
-     ("yavatmal", "kelapur"), ("yavatmal", "ghatanji"),
-     ("gadchiroli", "gadchiroli"), ("gadchiroli", "armori"),
-     ("gadchiroli", "chamorshi"), ("chandrapur", "rajura"),
-     ("ahmadnagar", "akola")]
+mh_b_sch = [("thane", "palghar"), ("thane", "vasai"),
+            ("thane", "bhiwandi"), ("thane", "murbad"),
+            ("nashik", "dindori"), ("nashik", "igatpuri"),
+            ("nashik", "nashik"), ("nashik", "baglan"), ("dhule", "sakri"),
+            ("dhule", "shirpur"), ("nandurbar", "nandurbar"),
+            ("nandurbar", "shahade"), ("jalgaon", "chopda"), ("jalgaon", "raver"),
+            ("jalgaon", "yawal"), ("pune", "ambegaon"), ("pune", "junnar"),
+            ("nanded", "kinwat"), ("yavatmal",
+                                   "maregaon"), ("yavatmal", "ralegaon"),
+            ("yavatmal", "kelapur"), ("yavatmal", "ghatanji"),
+            ("gadchiroli", "gadchiroli"), ("gadchiroli", "armori"),
+            ("gadchiroli", "chamorshi"), ("chandrapur", "rajura"),
+            ("ahmadnagar", "akola")]
 mh2 = sched_labeller(block, 'mh', mh_d_sch, mh_b_sch)
 mh2.sch.value_counts()
 
@@ -301,9 +303,9 @@ sort(block.query("state == 'ch'").named.unique())
 sort(block.query("state == 'ch'").nameb.unique())
 
 # %%
-#%%# Chhatisgarh
+# %%# Chhatisgarh
 ch_d_sch = ['bastar', 'koriya', 'surguja', 'kanker', 'dantewada',
-           'korba', 'jashpur']
+            'korba', 'jashpur']
 
 ch_b_sch = [("jashpur", "jashpurnagar"),
             ("raigarh", "kharsia"),
@@ -334,7 +336,7 @@ sort(block.query("state == 'mp'").named.unique())
 sort(block.query("state == 'mp'").nameb.unique())
 
 # %%
-#%%# Madhya Pradesh
+# %%# Madhya Pradesh
 mp_d_sch = ['jhabua', 'mandla']
 
 mp_b_sch = [("shahdol", "pushparajgarh"),
@@ -380,7 +382,7 @@ sort(block.query("state == 'rj'").named.unique())
 sort(block.query("state == 'rj'").nameb.unique())
 
 # %%
-#%%# Rajasthan
+# %%# Rajasthan
 rj_d_sch = ['banswara', 'dungarpur']
 
 rj_b_sch = [("udaipur", "girwa")]
@@ -412,7 +414,7 @@ rj2.sch.value_counts()
 sort(block.query("state == 'hp'").named.unique())
 sort(block.query("state == 'hp'").nameb.unique())
 
-#%%# Himanchal Pradesh
+# %%# Himanchal Pradesh
 hp_d_sch = ['lahul and spiti', 'kinnaur']
 hp_b_sch = [('chamba', 'pangi'), ('chamba', 'brahmaur')]
 
@@ -422,10 +424,10 @@ hp2.sch.value_counts()
 # %%
 block2 = pd.concat(
     [or2, ap2, jk2, gu2, ch2, mp2, mh2, hp2, rj2]
-    )
+)
 
 # %%
-%%time
+% % time
 block2.to_parquet(root/"tmp/BLOCKS_sch_coded.spq")
 
 
@@ -445,17 +447,17 @@ block2 = gpd.read_parquet(root/"tmp/BLOCKS_sch_coded.spq")
 block2['sched_str'] = np.where(block2.sch == 1, "scheduled", "non-scheduled")
 block2['sched_str'].value_counts()
 # %% # # Plot Treatment
-xmin, ymin, xmax, ymax= block2.total_bounds
-f, ax = plt.subplots(1, figsize=(12,12))
-block2.plot(column='sched_str', categorical=True, legend=True, alpha = 0.8,
-            cmap = 'Set1', edgecolor='k',linewidth=0.3,ax=ax)
-state.plot(facecolor = 'none', categorical=True, legend=True,
-            edgecolor='y',linewidth=1,ax=ax)
+xmin, ymin, xmax, ymax = block2.total_bounds
+f, ax = plt.subplots(1, figsize=(12, 12))
+block2.plot(column='sched_str', categorical=True, legend=True, alpha=0.8,
+            cmap='Set1', edgecolor='k', linewidth=0.3, ax=ax)
+state.plot(facecolor='none', categorical=True, legend=True,
+           edgecolor='y', linewidth=1, ax=ax)
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
 ax.set_axis_off()
-cx.add_basemap(ax, crs = state.crs.to_string(),
-    source = cx.providers.Stamen.TonerLite)
+cx.add_basemap(ax, crs=state.crs.to_string(),
+               source=cx.providers.Stamen.TonerLite)
 ax.set_title('Fifth Schedule Areas')
 ax.set_axis_off()
 
@@ -464,16 +466,15 @@ ax.set_axis_off()
 f.savefig(root/'out/treatmap/scheduled_areas_map.png')
 
 
-
 # %%
 def plot_treatment(statename, colname='sched_str'):
     """
     Function to slice geodataframe and plot treatment by state
     """
     df = block2.query('state == "{0}"'.format(statename))
-    f, ax = plt.subplots(1, figsize=(9,9))
+    f, ax = plt.subplots(1, figsize=(9, 9))
     df.plot(column=colname, categorical=True, legend=True,
-            cmap = 'Set2', ax=ax)
+            cmap='Set2', ax=ax)
     plt.suptitle('scheduled areas \n {0}'.format(statename))
     ax.set_axis_off()
     f.savefig(root/f"out/treatmap/treatmap_{statename}.pdf")

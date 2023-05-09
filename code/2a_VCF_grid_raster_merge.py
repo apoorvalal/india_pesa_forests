@@ -52,8 +52,11 @@ fishnet.to_file(root/"tmp/vcf_pixel_cells.geojson", driver = "GeoJSON")
 %%time
 fishnet = gpd.read_file(root/"tmp/vcf_pixel_cells.geojson")
 
+# %%
+fishnet.head()
+
 # %% keep just geometry and cellid
-fishnet.drop(['value', 'x', 'y'], axis = 1, inplace = True)
+fishnet.drop(['value'], axis = 1, inplace = True)
 fishnet = fishnet.to_crs(block_buf.crs)
 fishnet.info()
 # %% set geom to centroid

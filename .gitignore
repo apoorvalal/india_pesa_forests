@@ -1,3 +1,7 @@
+.Rhistory
+out_sg/*
+literature/*
+inp/*
 *.gpkg
 *.csv
 *.csv.tar.gz
