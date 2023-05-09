@@ -1,0 +1,1 @@
+7_panelmatch folder has scripts that used a previous version of conflica_data.csv. This data was generated using 9_protests.do.
